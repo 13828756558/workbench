@@ -1,7 +1,7 @@
 {
-  "name": "茜的个人空间",
-  "short_name": "茜·空间",
-  "description": "茜的个人空间 - 生活习惯、学习成长、工作管理",
+  "name": "茜·工作台",
+  "short_name": "茜·工作台",
+  "description": "茜·工作台 - 生活习惯、学习成长、工作管理",
   "start_url": "workbench.html",
   "display": "standalone",
   "orientation": "portrait",
