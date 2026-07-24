@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#c4b5fd">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="茜·工作台">
+<meta name="apple-mobile-web-app-title" content="茜的个人空间">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
-<title>茜·工作台</title>
+<title>茜的个人空间</title>
 <style>
   :root{
     --bg:#faf8ff; --panel:#ffffff; --panel2:#f8f5ff; --border:#ede9fe;
@@ -19,7 +19,7 @@
     --accent3:#ddd6fe; --accent-deep:#8b5cf6;
     --warn:#fbbf24; --danger:#f9a8d4; --pink:#ec7796;
     --green:#6ee7b7; --green-deep:#34d399; --yellow:#fcd34d;
-    --blue:#93c5fd; --orange:#fdba74; --tiger:#ff9f43;
+    --blue:#93c5fd; --orange:#fdba74; --warm:#ff9f43;
     --shadow:0 4px 16px rgba(167,139,250,.1);
     --shadow-lg:0 8px 28px rgba(167,139,250,.15);
     --radius:22px;
@@ -64,7 +64,7 @@
   .btn.sm{padding:6px 14px;font-size:12px;border-radius:10px}
   .btn.green{background:linear-gradient(135deg,#6ee7b7,#34d399);box-shadow:0 3px 10px rgba(52,211,153,.25)}
   .btn.pink{background:linear-gradient(135deg,#f9a8d4,#ec7796);box-shadow:0 3px 10px rgba(236,119,150,.25)}
-  .btn.tiger{background:linear-gradient(135deg,#ffb74d,#ff9800);box-shadow:0 3px 10px rgba(255,152,0,.25)}
+  .btn.warm{background:linear-gradient(135deg,#ffb74d,#ff9800);box-shadow:0 3px 10px rgba(255,152,0,.25)}
   .ring-wrap{display:flex;align-items:center;gap:16px;justify-content:center;padding:8px 0}
   .ring{position:relative;width:96px;height:96px}
   .ring svg{transform:rotate(-90deg)}
@@ -185,7 +185,7 @@
 </head>
 <body>
 <div class="header">
-  <h1>🌸 茜·工作台</h1>
+  <h1>🌸 茜的个人空间</h1>
   <div class="greet" id="greet">早安，开始今天的工作吧</div>
   <div class="date-row"><div class="date-chip" id="dateChip">📅</div><div class="date-chip" id="weekChip">📊</div></div>
 </div>
@@ -243,7 +243,7 @@
       <div class="form-row" style="margin-top:8px">
         <input id="goalStart" type="number" step="0.1" placeholder="起始体重kg" style="max-width:110px">
         <input id="goalTarget" type="number" step="0.1" placeholder="目标体重kg" style="max-width:110px">
-        <button class="btn tiger sm" onclick="setGoal()">设置目标</button>
+        <button class="btn warm sm" onclick="setGoal()">设置目标</button>
       </div>
     </div>
     <div class="weight-summary" id="weightSummary"></div>
@@ -379,7 +379,7 @@ function renderHome(){
   }
   document.getElementById('homeStats').innerHTML=`
     <div class="stat-card"><span class="emoji">🏃‍♀️</span><div class="num" style="color:var(--green-deep)">${sportRate}%</div><div class="label">运动打卡率</div><div class="sub">🔥 连续${sportStreak}天</div></div>
-    <div class="stat-card"><span class="emoji">⚖️</span><div class="num" style="color:var(--tiger)">${goalProgress}%</div><div class="label">减肥进度</div><div class="sub">${goalText}</div></div>
+    <div class="stat-card"><span class="emoji">⚖️</span><div class="num" style="color:var(--warm)">${goalProgress}%</div><div class="label">减肥进度</div><div class="sub">${goalText}</div></div>
     <div class="stat-card"><span class="emoji">🤖</span><div class="num" style="color:var(--accent-deep)">${aiWeek.toFixed(1)}h</div><div class="label">本周学习</div><div class="sub">今日 ${ai.todayMin}/60min</div></div>
     <div class="stat-card"><span class="emoji">⏰</span><div class="num" style="color:var(--danger)">${urgentReminders}</div><div class="label">近期待办提醒</div><div class="sub">${reminders.filter(r=>!r.done).length}项未完成</div></div>
   `;
