@@ -125,6 +125,11 @@
   .weight-row .w-diff{font-size:11px;padding:2px 8px;border-radius:6px;font-weight:600}
   .weight-row .w-diff.down{background:#d1fae5;color:#059669}
   .weight-row .w-diff.up{background:#fce7f3;color:#db2777}
+  .weight-quick-input{display:flex;align-items:center;gap:6px;justify-content:center}
+  .weight-stepper{width:36px;height:36px;border-radius:12px;border:1.5px solid var(--accent3);background:var(--panel);color:var(--accent-deep);font-size:20px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+  .weight-stepper:active{transform:scale(.9);background:var(--accent3)}
+  .weight-quick-input input{text-align:center;font-size:18px;font-weight:700;max-width:100px}
+  .weight-unit{font-size:13px;color:var(--muted);font-weight:600;flex-shrink:0}
   .weight-row .w-diff.flat{background:var(--panel2);color:var(--muted)}
   .goal-box{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1.5px solid #fed7aa;border-radius:16px;padding:14px;margin-bottom:14px}
   .goal-box .goal-title{font-size:14px;font-weight:700;color:#c2410c;margin-bottom:8px;display:flex;align-items:center;gap:4px}
@@ -258,7 +263,14 @@
     </div>
     <div class="weight-summary" id="weightSummary"></div>
     <div class="weight-chart-wrap" style="margin:14px 0"><canvas id="weightChart" height="160"></canvas></div>
-    <div class="form-row"><input id="weightInput" type="number" step="0.1" placeholder="今日体重（kg）"><button class="btn green sm" onclick="addWeight()">记录体重</button></div>
+    <div class="weight-quick-input">
+      <button class="weight-stepper" onclick="stepWeight(-0.1)">−</button>
+      <input id="weightInput" type="number" step="0.1" placeholder="今日体重" onkeypress="if(event.key==='Enter')addWeight()">
+      <span class="weight-unit">kg</span>
+      <button class="weight-stepper" onclick="stepWeight(0.1)">+</button>
+      <button class="btn green sm" onclick="addWeight()">记录</button>
+    </div>
+    <div id="weightLastInfo" class="small muted" style="text-align:center;margin-top:6px"></div>
     <div id="weightList" style="margin-top:12px;max-height:200px;overflow-y:auto"></div>
   </div>
 </div>
@@ -525,6 +537,17 @@ function closeVideo(){document.getElementById('videoPlayer').style.display='none
 
 // ===== 体重管理 =====
 function getWeights(){return DB.get('weights',[])}
+function stepWeight(delta){
+  const input=document.getElementById('weightInput');
+  let v=parseFloat(input.value);
+  if(!v){
+    // 没有输入值时，以上次体重为基准
+    const data=getWeights();
+    v=data.length>0?data[data.length-1].value:60;
+  }
+  v=Math.round((v+delta)*10)/10;
+  input.value=v.toFixed(1);
+}
 function addWeight(){
   const v=parseFloat(document.getElementById('weightInput').value);
   if(!v||v<=0||v>500){toast('请输入有效体重');return}
@@ -556,10 +579,30 @@ function renderWeights(){
     goalFill.style.width='0%';
   }
   const badge=document.getElementById('weightBadge');
-  if(data.length===0){badge.textContent='未记录';document.getElementById('weightSummary').innerHTML='';document.getElementById('weightList').innerHTML='<div class="empty"><span class="emoji">⚖️</span>还没有体重记录</div>';drawWeightChart([]);return}
+  const input=document.getElementById('weightInput');
+  const lastInfo=document.getElementById('weightLastInfo');
+  if(data.length===0){
+    badge.textContent='未记录';
+    document.getElementById('weightSummary').innerHTML='';
+    document.getElementById('weightList').innerHTML='<div class="empty"><span class="emoji">⚖️</span>还没有体重记录，输入今日体重开始追踪</div>';
+    if(input){input.placeholder='今日体重';lastInfo.textContent=''}
+    drawWeightChart([]);return;
+  }
   const cur=data[data.length-1].value;const first=data[0].value;const prev=data.length>1?data[data.length-2].value:cur;
   const totalDiff=cur-first;const todayDiff=cur-prev;
+  const todayRecorded=data.some(x=>x.date===today());
   badge.textContent=cur+'kg';
+  // 输入框预填和参考信息
+  if(input){
+    if(todayRecorded){
+      input.value=cur.toFixed(1);
+      lastInfo.innerHTML=`📌 今日已记录 <b>${cur}kg</b>，修改后点击记录即可更新`;
+    }else{
+      input.value='';
+      input.placeholder='今日体重';
+      lastInfo.innerHTML=`上次记录：${data[data.length-1].date.slice(5)} <b>${cur}kg</b>${todayDiff!==0?`（${todayDiff<0?'↓':'↑'}${Math.abs(todayDiff).toFixed(1)}kg）`:''}`;
+    }
+  }
   document.getElementById('weightSummary').innerHTML=`
     <div class="weight-box"><div class="v ${totalDiff<0?'down':totalDiff>0?'up':''}">${cur}<span style="font-size:13px">kg</span></div><div class="l">当前体重</div></div>
     <div class="weight-box"><div class="v ${totalDiff<0?'down':totalDiff>0?'up':''}">${totalDiff>=0?'+':''}${totalDiff.toFixed(1)}</div><div class="l">累计变化</div></div>
