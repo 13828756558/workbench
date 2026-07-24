@@ -131,12 +131,12 @@
   .goal-box .goal-progress{height:10px;background:#fff;border-radius:5px;overflow:hidden;margin:8px 0}
   .goal-box .goal-fill{height:100%;background:linear-gradient(90deg,#ffb74d,#ff9800);border-radius:5px;transition:width .5s}
   .goal-box .goal-text{font-size:12px;color:#9a3412}
-  .ai-timer-box{background:linear-gradient(135deg,#faf8ff,#ede9fe);border-radius:20px;padding:20px;text-align:center;margin-bottom:14px;border:1.5px solid var(--border)}
-  .ai-timer-box .time{font-size:46px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent-deep)}
-  .ai-timer-box .status{font-size:13px;color:var(--muted);margin-top:4px}
-  .ai-timer-box .progress-bar{height:8px;background:var(--border);border-radius:4px;margin-top:12px;overflow:hidden}
-  .ai-timer-box .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:4px;transition:width .3s}
-  .ai-controls{display:flex;gap:8px;justify-content:center;margin-top:14px}
+  .ai-timer-box{background:linear-gradient(135deg,#faf8ff,#ede9fe);border-radius:16px;padding:14px 16px;text-align:center;margin-bottom:10px;border:1.5px solid var(--border)}
+  .ai-timer-box .time{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums;color:var(--accent-deep)}
+  .ai-timer-box .status{font-size:12px;color:var(--muted);margin-top:2px}
+  .ai-timer-box .progress-bar{height:6px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden}
+  .ai-timer-box .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:3px;transition:width .3s}
+  .ai-controls{display:flex;gap:8px;justify-content:center;margin-top:8px}
   .plan-item{background:var(--panel2);padding:14px;border-radius:14px;margin-bottom:8px;border:1px solid var(--border);cursor:pointer;transition:all .15s}
   .plan-item:hover{border-color:var(--accent)}
   .plan-item .day{font-size:11px;color:var(--accent-deep);font-weight:700;background:var(--accent3);padding:2px 8px;border-radius:8px;display:inline-block}
@@ -199,11 +199,21 @@
     <div class="card-title">📝 日常待办 <span class="badge" id="todoBadge">0项</span></div>
     <div class="form-row">
       <input id="todoInput" type="text" placeholder="待办事项..." onkeypress="if(event.key==='Enter')addTodo()">
-      <input id="todoDate" type="date" style="max-width:130px">
+      <select id="todoPri" style="max-width:80px"><option value="高">🔴 高</option><option value="中" selected>🟡 中</option><option value="低">🟢 低</option></select>
+    </div>
+    <div class="form-row">
+      <select id="todoDateType" style="max-width:90px" onchange="onTodoDateTypeChange()">
+        <option value="once">📅 单次</option>
+        <option value="daily">🔁 每日</option>
+        <option value="weekly">📆 每周</option>
+        <option value="monthly">🗓️ 每月</option>
+      </select>
+      <span id="todoDateOnceWrap"><input id="todoDate" type="date" style="max-width:130px"></span>
+      <span id="todoWeekWrap" style="display:none"><select id="todoWeek" style="max-width:100px"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select></span>
+      <span id="todoMonthWrap" style="display:none"><select id="todoMonthDay" style="max-width:80px"></select><span class="small muted" style="margin-left:4px">号</span></span>
       <input id="todoTime" type="time" style="max-width:90px">
     </div>
     <div class="form-row">
-      <select id="todoPri" style="max-width:80px"><option value="高">🔴 高</option><option value="中" selected>🟡 中</option><option value="低">🟢 低</option></select>
       <button class="btn sm" onclick="addTodo()">添加待办</button>
     </div>
     <div id="todoList" style="margin-top:12px;max-height:400px;overflow-y:auto"></div>
@@ -576,27 +586,92 @@ function drawWeightChart(data){
   if(data.length>1){ctx.textAlign='right';ctx.fillText(data[data.length-1].date.slice(5),pad.l+cw,h-6)}
 }
 
-// ===== 待办（支持日期时间） =====
+// ===== 待办（支持单次/每日/每周/每月重复） =====
 function getTodos(){return DB.get('todos',[])}
+const WEEK_NAMES={1:'周一',2:'周二',3:'周三',4:'周四',5:'周五',6:'周六',0:'周日'};
+// 初始化每月日期下拉
+(function(){const sel=document.createElement('select');sel.id='_init';})();
+function initTodoMonthDay(){
+  const sel=document.getElementById('todoMonthDay');
+  if(!sel||sel.options.length>0)return;
+  for(let d=1;d<=31;d++){const o=document.createElement('option');o.value=d;o.textContent=d;sel.appendChild(o)}
+}
+function onTodoDateTypeChange(){
+  const type=document.getElementById('todoDateType').value;
+  document.getElementById('todoDateOnceWrap').style.display=type==='once'?'':'none';
+  document.getElementById('todoWeekWrap').style.display=type==='weekly'?'':'none';
+  document.getElementById('todoMonthWrap').style.display=type==='monthly'?'':'none';
+  if(type==='monthly')initTodoMonthDay();
+}
+// 根据重复规则计算下一次到期日期
+function calcNextDate(type,anchor,weekday,monthDay){
+  const t=new Date();const todayStr=today();
+  if(type==='once')return anchor||todayStr;
+  if(type==='daily')return todayStr;
+  if(type==='weekly'){
+    const wd=weekday!==undefined?Number(weekday):t.getDay();
+    let diff=(wd-t.getDay()+7)%7;
+    return dateStr(new Date(t.getTime()+diff*86400000));
+  }
+  if(type==='monthly'){
+    const md=monthDay||1;
+    let y=t.getFullYear(),m=t.getMonth();
+    let d=new Date(y,m,md);
+    if(d<t.setHours(0,0,0,0))d=new Date(y,m+1,md);
+    return dateStr(d);
+  }
+  return todayStr;
+}
+function dateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function addTodo(){
   const text=document.getElementById('todoInput').value.trim();
   const pri=document.getElementById('todoPri').value;
-  const date=document.getElementById('todoDate').value||today();
+  const dateType=document.getElementById('todoDateType').value;
   const time=document.getElementById('todoTime').value||'';
+  let date,weekday=0,monthDay=1;
+  if(dateType==='once')date=document.getElementById('todoDate').value||today();
+  else if(dateType==='weekly'){weekday=Number(document.getElementById('todoWeek').value);date=calcNextDate('weekly',null,weekday);}
+  else if(dateType==='monthly'){initTodoMonthDay();monthDay=Number(document.getElementById('todoMonthDay').value);date=calcNextDate('monthly',null,null,monthDay);}
+  else date=today();
   if(!text)return;
   const data=getTodos();
-  data.unshift({text,pri,date,time,done:false,id:Date.now()});
+  data.unshift({text,pri,dateType,date,time,weekday,monthDay,done:false,id:Date.now()});
   DB.set('todos',data);
   document.getElementById('todoInput').value='';
-  document.getElementById('todoDate').value='';
   document.getElementById('todoTime').value='';
   renderTodos();renderHome();
   toast('✅ 待办已添加');
 }
-function toggleTodo(id){DB.set('todos',getTodos().map(x=>x.id===id?{...x,done:!x.done}:x));renderTodos();renderHome();}
+function toggleTodo(id){
+  const data=getTodos();
+  const item=data.find(x=>x.id===id);
+  if(!item)return;
+  item.done=!item.done;
+  // 重复待办完成后，自动滚动到下一个周期
+  if(item.done&&item.dateType&&item.dateType!=='once'){
+    item.nextDate=calcNextDate(item.dateType,null,item.weekday,item.monthDay);
+  }
+  DB.set('todos',data);
+  renderTodos();renderHome();
+}
 function delTodo(id){DB.set('todos',getTodos().filter(x=>x.id!==id));renderTodos();renderHome();}
 function renderTodos(){
-  const data=getTodos().sort((a,b)=>{
+  // 刷新重复待办的到期日（如果已过期且未完成，自动推进到下一次）
+  const data=getTodos();
+  const todayStr=today();
+  let changed=false;
+  data.forEach(x=>{
+    if(!x.done&&x.dateType&&x.dateType!=='once'&&x.date<todayStr){
+      x.date=calcNextDate(x.dateType,null,x.weekday,x.monthDay);
+      changed=true;
+    }
+    if(x.done&&x.nextDate&&x.nextDate<=todayStr){
+      // 下一周期到达，重新激活
+      x.done=false;x.date=x.nextDate;x.nextDate=null;changed=true;
+    }
+  });
+  if(changed)DB.set('todos',data);
+  const sorted=data.sort((a,b)=>{
     if(a.done!==b.done)return a.done?1:-1;
     const da=a.date+a.time, db=b.date+b.time;
     return da.localeCompare(db);
@@ -605,14 +680,20 @@ function renderTodos(){
   document.getElementById('todoBadge').textContent=undone+'项待办';
   const list=document.getElementById('todoList');
   if(data.length===0){list.innerHTML='<div class="empty"><span class="emoji">📋</span>暂无待办，添加一个吧</div>';return}
-  list.innerHTML=data.map(x=>{
-    const isToday=x.date===today();
-    const isOverdue=!x.done&&x.date<today();
+  list.innerHTML=sorted.map(x=>{
+    const isToday=x.date===todayStr;
+    const isOverdue=!x.done&&x.date<todayStr;
     const dayLabel=isToday?'今天':x.date.slice(5);
     const timeLabel=x.time?(' '+x.time):'';
+    // 重复类型标签
+    let repeatLabel='';
+    if(x.dateType==='daily')repeatLabel='🔁 每日 · ';
+    else if(x.dateType==='weekly')repeatLabel='📆 '+WEEK_NAMES[x.weekday]+' · ';
+    else if(x.dateType==='monthly')repeatLabel='🗓️ 每月'+x.monthDay+'号 · ';
+    const nextLabel=x.done&&x.nextDate?' → '+x.nextDate.slice(5):'';
     return `<div class="todo-item ${x.done?'done':''}" style="${isOverdue?'border-color:var(--danger);background:#fef2f7':''}">
       <span class="check" onclick="toggleTodo(${x.id})">${x.done?'✅':'⬜'}</span>
-      <span class="text">${x.text}<div class="small muted">${isOverdue?'⚠️ 已过期 · ':''}📅 ${dayLabel}${timeLabel}</div></span>
+      <span class="text">${x.text}<div class="small muted">${isOverdue?'⚠️ 已过期 · ':''}📅 ${repeatLabel}${dayLabel}${timeLabel}${nextLabel}</div></span>
       <span class="pri pri-${x.pri}">${x.pri}</span>
       <span class="del" onclick="delTodo(${x.id})">🗑️</span>
     </div>`;
@@ -637,7 +718,7 @@ function renderAI(){const s=getAIStudy();if(s.date!==today()){s.date=today();s.t
 // ===== 学习板块：按知识领域自动推荐 =====
 const STUDY_DOMAINS=[
   {
-    key:'ai',name:'AI编程提能',icon:'🤖',color:'#7c3aed',
+    key:'ai',name:'AI编程',icon:'🤖',color:'#7c3aed',
     desc:'Cursor、Claude Code、Copilot等AI编程工具实战',
     videos:[
       {title:'Cursor AI编程零基础全套教程',bvid:'BV1E6CFBMEnk',platform:'B站',summary:'2025最新版Cursor从安装到实战，22节完整教程'},
@@ -647,34 +728,18 @@ const STUDY_DOMAINS=[
     ]
   },
   {
-    key:'office',name:'辅助办公提效',icon:'💼',color:'#059669',
-    desc:'ChatGPT、WPS AI等工具提升日常办公效率',
+    key:'office',name:'AI办公',icon:'💼',color:'#059669',
+    desc:'ChatGPT、DeepSeek等AI工具提升日常办公效率',
     videos:[
       {title:'ChatGPT官方中文版使用教程',bvid:'BV1jzgh6VEG8',platform:'B站',summary:'最新最全ChatGPT使用教程，办公提效'},
       {title:'ChatGPT文档/表格/幻灯片应用',bvid:'BV1Ghge6jERt',platform:'B站',summary:'用ChatGPT处理文档、表格和PPT'},
+      {title:'DeepSeek全功能使用指南',bvid:'BV1a1KWe6EQS',platform:'B站',summary:'DeepSeek深度推理+联网搜索+文件解析，办公提效利器'},
       {title:'Prompt工程系统化教程',bvid:'BV1fhVm6eE1i',platform:'B站',summary:'提示词工程彻底讲透，提升AI输出质量'},
     ]
   },
   {
-    key:'treasury',name:'资金司库业务',icon:'🏦',color:'#d97706',
-    desc:'司库管理、资金集中管理、央企司库体系建设',
-    videos:[
-      {title:'司库资金管理软件有什么用',bvid:'BV1Wj411X7ui',platform:'B站',summary:'邑泊咨询讲解司库资金管理软件价值'},
-      {title:'Java资金管理系统实战',bvid:'BV12Z2DBBET7',platform:'B站',summary:'理财+借贷+银行推荐+权限控制全栈项目'},
-      {title:'银行柜员业务绩效考核系统',bvid:'BV1jG411e7KB',platform:'B站',summary:'Java实战毕设项目，绩效考核系统设计'},
-    ]
-  },
-  {
-    key:'java',name:'Java技术进阶',icon:'☕',color:'#dc2626',
-    desc:'SpringBoot、Java后端技术栈提升',
-    videos:[
-      {title:'B站最全Java从入门到精通',bvid:'BV1xYK26ZEWV',platform:'B站',summary:'2026暑假版，全程干货零基础全套教程'},
-      {title:'SpringBoot快速上手+实战',bvid:'BV1tBgC6aEu7',platform:'B站',summary:'B站讲得最好的SpringBoot教程'},
-    ]
-  },
-  {
-    key:'side',name:'副业自媒体',icon:'📱',color:'#db2777',
-    desc:'程序员副业、小红书运营、短视频变现',
+    key:'media',name:'AI自媒体',icon:'📱',color:'#db2777',
+    desc:'AI做自媒体、短视频生成、AI写作变现',
     videos:[
       {title:'程序员超赚钱自媒体账号教程',bvid:'BV1FfKWeVEaQ',platform:'B站',summary:'黑马程序员20条自媒体赛道变现指南'},
       {title:'程序员最好的副业方向',bvid:'BV12ri1YuERk',platform:'B站',summary:'每个程序员都该做的副业'},
@@ -682,9 +747,18 @@ const STUDY_DOMAINS=[
       {title:'小红书运营全教程',bvid:'BV1dDgx68ELy',platform:'B站',summary:'2025最新小红书运营，从起号到变现'},
     ]
   },
+  {
+    key:'treasury',name:'司库管理',icon:'🏦',color:'#d97706',
+    desc:'司库管理、资金集中管理、央企司库体系建设',
+    videos:[
+      {title:'司库资金管理软件有什么用',bvid:'BV1Wj411X7ui',platform:'B站',summary:'邑泊咨询讲解司库资金管理软件价值'},
+      {title:'Java资金管理系统实战',bvid:'BV12Z2DBBET7',platform:'B站',summary:'理财+借贷+银行推荐+权限控制全栈项目'},
+      {title:'银行柜员业务绩效考核系统',bvid:'BV1jG411e7KB',platform:'B站',summary:'Java实战毕设项目，绩效考核系统设计'},
+    ]
+  },
 ];
 function getTodayDomainIndex(){
-  // 每天轮换一个领域，5天一轮
+  // 每天轮换一个领域，4天一轮
   const day=Math.floor(Date.now()/86400000);
   return day%STUDY_DOMAINS.length;
 }
@@ -705,7 +779,7 @@ function renderDomainTabs(activeIdx){
   }).join('');
 }
 function renderVideoList(domain){
-  const tagClass=domain.key==='treasury'||domain.key==='java'?'biz':domain.key==='side'?'media':domain.key==='office'?'office':'ai';
+  const tagClass=domain.key==='treasury'?'biz':domain.key==='media'?'media':domain.key==='office'?'office':'ai';
   document.getElementById('todayVideoList').innerHTML=domain.videos.map(v=>`
     <div class="news-item" onclick="playVideo2('${v.bvid}','${v.title}')">
       <span class="tag tag-${tagClass}">${v.platform}</span>
@@ -776,6 +850,7 @@ let toastTimer=null;function toast(msg){const el=document.getElementById('toast'
 
 // ===== 初始化 =====
 function init(){
+  onTodoDateTypeChange();
   renderHeader();renderHome();renderSport();renderSportPlan();renderWeights();renderTodos();renderStudy();renderWork();
   if(new Date().getDay()===5)setTimeout(()=>toast('📌 今天周五，别忘了写周报！'),800);
 }
