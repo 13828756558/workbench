@@ -285,6 +285,12 @@
     </div>
     <div id="domainTabs" class="domain-tabs"></div>
     <div id="todayVideoList"></div>
+    <div id="videoPager" style="display:flex;gap:8px;justify-content:center;margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">⭐ 我的收藏 <span class="badge" id="favBadge">0个</span></div>
+    <div id="favVideoList"></div>
   </div>
 </div>
 
@@ -722,9 +728,12 @@ const STUDY_DOMAINS=[
     desc:'Cursor、Claude Code、Copilot等AI编程工具实战',
     videos:[
       {title:'Cursor AI编程零基础全套教程',bvid:'BV1E6CFBMEnk',platform:'B站',summary:'2025最新版Cursor从安装到实战，22节完整教程'},
-      {title:'Claude Code从入门到精通',bvid:'BV1BFgY6mEPw',platform:'B站',summary:'B站讲得最好的Claude Code实战教程'},
+      {title:'Claude Code从入门到精通',bvid:'BV15sga6kEve',platform:'B站',summary:'2026版1小时彻底搞定Claude Code实战教程'},
       {title:'VSCode GitHub Copilot完整教程',bvid:'BV15BSYBgEnx',platform:'B站',summary:'Copilot基础到进阶，智能代码补全'},
-      {title:'Vibe Coding新编程范式',bvid:'BV1fhVm6eE1i',platform:'B站',summary:'自然语言生成代码，AI编程新趋势'},
+      {title:'最强AI编程工具Claude Code新手教程',bvid:'BV1S8u2zDE5p',platform:'B站',summary:'Claude Code保姆级教程，小白友好'},
+      {title:'Cursor保姆级使用教程',bvid:'BV1WBG9zgECp',platform:'B站',summary:'史上最强AI编程工具免费啦，新手友好'},
+      {title:'字节Trae使用教程-国产版Cursor',bvid:'BV1U3RAYeEBG',platform:'B站',summary:'免费高效国产AI编程神器Trae'},
+      {title:'Vibe Coding零基础项目实战',bvid:'BV1w9MczyETB',platform:'B站',summary:'Claude Code+Codex+Cursor实战教学'},
     ]
   },
   {
@@ -732,9 +741,12 @@ const STUDY_DOMAINS=[
     desc:'ChatGPT、DeepSeek等AI工具提升日常办公效率',
     videos:[
       {title:'ChatGPT官方中文版使用教程',bvid:'BV1jzgh6VEG8',platform:'B站',summary:'最新最全ChatGPT使用教程，办公提效'},
-      {title:'ChatGPT文档/表格/幻灯片应用',bvid:'BV1Ghge6jERt',platform:'B站',summary:'用ChatGPT处理文档、表格和PPT'},
-      {title:'DeepSeek全功能使用指南',bvid:'BV1a1KWe6EQS',platform:'B站',summary:'DeepSeek深度推理+联网搜索+文件解析，办公提效利器'},
-      {title:'Prompt工程系统化教程',bvid:'BV1fhVm6eE1i',platform:'B站',summary:'提示词工程彻底讲透，提升AI输出质量'},
+      {title:'DeepSeek+KIMI 3分钟搞定完美PPT',bvid:'BV1BtPfeYEp3',platform:'B站',summary:'DeepSeek+KIMI做PPT保姆级教程'},
+      {title:'AI做高质量PPT全流程拆解',bvid:'BV17sAte3Exh',platform:'B站',summary:'从写到讲，AI做PPT全流程'},
+      {title:'DeepSeek+Excel办公神器教程',bvid:'BV1hJA6eAEy9',platform:'B站',summary:'2025年办公效率直接起飞，超详细'},
+      {title:'WPS内置DeepSeek-R1大模型教程',bvid:'BV1KmN7eYE4u',platform:'B站',summary:'全网最详细WPS接入DeepSeek教程'},
+      {title:'AI一键生成PPT教程',bvid:'BV1T84y1N7CV',platform:'B站',summary:'做PPT的福音，AI一键生成'},
+      {title:'11个DeepSeek王炸组合效率翻倍',bvid:'BV1XLPcexEad',platform:'B站',summary:'超全DeepSeek组合用法'},
     ]
   },
   {
@@ -742,9 +754,12 @@ const STUDY_DOMAINS=[
     desc:'AI做自媒体、短视频生成、AI写作变现',
     videos:[
       {title:'程序员超赚钱自媒体账号教程',bvid:'BV1FfKWeVEaQ',platform:'B站',summary:'黑马程序员20条自媒体赛道变现指南'},
-      {title:'程序员最好的副业方向',bvid:'BV12ri1YuERk',platform:'B站',summary:'每个程序员都该做的副业'},
-      {title:'程序员转行UP主收入大公开',bvid:'BV1S59uBGEVo',platform:'B站',summary:'程序员做全职UP主经历分享'},
-      {title:'小红书运营全教程',bvid:'BV1dDgx68ELy',platform:'B站',summary:'2025最新小红书运营，从起号到变现'},
+      {title:'0基础AI视频制作保姆级教程',bvid:'BV1RkwLzdEP1',platform:'B站',summary:'2026最新版全68集，零成本AI视频制作'},
+      {title:'AI数字人制作专属教程',bvid:'BV17aumzuEmq',platform:'B站',summary:'手把手带你制作AI数字人，8G显卡可用'},
+      {title:'AI写小红书爆款引流教程',bvid:'BV1fX4y127ou',platform:'B站',summary:'AI写小红书含完整指令，篇篇爆款'},
+      {title:'用AI生成数字人替代自己出镜',bvid:'BV1ME421P755',platform:'B站',summary:'用自己的形象生成AI数字人创作短视频'},
+      {title:'AI写作变现副业教程',bvid:'BV1ExW1ziEVp',platform:'B站',summary:'手把手教你AI写作变现'},
+      {title:'DeepSeek写小说月入3.6W教程',bvid:'BV1S2HczxE2Y',platform:'B站',summary:'用DeepSeek写小说附完整指令'},
     ]
   },
   {
@@ -752,8 +767,11 @@ const STUDY_DOMAINS=[
     desc:'司库管理、资金集中管理、央企司库体系建设',
     videos:[
       {title:'司库资金管理软件有什么用',bvid:'BV1Wj411X7ui',platform:'B站',summary:'邑泊咨询讲解司库资金管理软件价值'},
-      {title:'Java资金管理系统实战',bvid:'BV12Z2DBBET7',platform:'B站',summary:'理财+借贷+银行推荐+权限控制全栈项目'},
-      {title:'银行柜员业务绩效考核系统',bvid:'BV1jG411e7KB',platform:'B站',summary:'Java实战毕设项目，绩效考核系统设计'},
+      {title:'央企司库管理体系建设政策解读',bvid:'BV1S3411E7uY',platform:'B站',summary:'中央企业司库管理政策解读'},
+      {title:'司库体系建设经验分享',bvid:'BV1RY411o7EF',platform:'B站',summary:'中兴新云扶冰清：司库体系建设'},
+      {title:'司库管理数字化体系打造',bvid:'BV1UW4y1p7n7',platform:'B站',summary:'中兴新云孙彦丛：数字化司库管理'},
+      {title:'司库"四资"属性政策解读',bvid:'BV1e8411776k',platform:'B站',summary:'国资委司库政策解读'},
+      {title:'企业司库管理设计要素',bvid:'BV1J341147o3',platform:'B站',summary:'企业司库管理设计应考虑的因素'},
     ]
   },
 ];
@@ -763,12 +781,47 @@ function getTodayDomainIndex(){
   return day%STUDY_DOMAINS.length;
 }
 function getStudyPlan(){return DB.get('studyPlan',{items:[],weekKey:''})}
+// 收藏管理
+function getFavVideos(){return DB.get('favVideos',[])}
+function toggleFav(bvid,title,domainKey,domainIcon,domainName,summary,platform){
+  const favs=getFavVideos();
+  const exist=favs.find(f=>f.bvid===bvid);
+  if(exist){DB.set('favVideos',favs.filter(f=>f.bvid!==bvid));toast('💔 已取消收藏')}
+  else{favs.unshift({bvid,title,domainKey,domainIcon,domainName,summary,platform,id:Date.now()});DB.set('favVideos',favs);toast('⭐ 已收藏')}
+  renderVideoList(STUDY_DOMAINS[currentDomainIdx>=0?currentDomainIdx:getTodayDomainIndex()]);
+  renderFavVideos();
+}
+function isFav(bvid){return getFavVideos().some(f=>f.bvid===bvid)}
+function delFav(bvid){DB.set('favVideos',getFavVideos().filter(f=>f.bvid!==bvid));renderFavVideos();const cur=STUDY_DOMAINS[currentDomainIdx>=0?currentDomainIdx:getTodayDomainIndex()];if(cur)renderVideoList(cur);}
+function renderFavVideos(){
+  const favs=getFavVideos();
+  document.getElementById('favBadge').textContent=favs.length+'个';
+  const list=document.getElementById('favVideoList');
+  if(favs.length===0){list.innerHTML='<div class="empty"><span class="emoji">⭐</span>还没有收藏，点击视频卡片上的 ☆ 收藏</div>';return}
+  list.innerHTML=favs.map(f=>{
+    const tagClass=f.domainKey==='treasury'?'biz':f.domainKey==='media'?'media':f.domainKey==='office'?'office':'ai';
+    return `<div class="news-item" onclick="playVideo2('${f.bvid}','${f.title}')">
+      <span class="tag tag-${tagClass}">${f.domainIcon} ${f.domainName}</span>
+      <div class="title">${f.title}</div>
+      <div class="summary">${f.summary}</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+        <span class="video-btn">▶️ 观看视频</span>
+        <span style="cursor:pointer;font-size:16px;color:var(--warn)" onclick="event.stopPropagation();delFav('${f.bvid}')">⭐</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+// 分页：每批展示3个视频
+const VIDEO_PAGE_SIZE=3;
+let videoPageIdx=0; // 当前领域的视频分页索引
 function renderTodayVideos(){
   const idx=getTodayDomainIndex();
   const domain=STUDY_DOMAINS[idx];
   document.getElementById('todayDomain').textContent=domain.icon+' '+domain.name;
   renderDomainTabs(idx);
+  videoPageIdx=0;
   renderVideoList(domain);
+  renderFavVideos();
 }
 function renderDomainTabs(activeIdx){
   const todayIdx=getTodayDomainIndex();
@@ -780,18 +833,46 @@ function renderDomainTabs(activeIdx){
 }
 function renderVideoList(domain){
   const tagClass=domain.key==='treasury'?'biz':domain.key==='media'?'media':domain.key==='office'?'office':'ai';
-  document.getElementById('todayVideoList').innerHTML=domain.videos.map(v=>`
-    <div class="news-item" onclick="playVideo2('${v.bvid}','${v.title}')">
-      <span class="tag tag-${tagClass}">${v.platform}</span>
+  const allVideos=domain.videos;
+  const start=videoPageIdx*VIDEO_PAGE_SIZE;
+  const batch=allVideos.slice(start,start+VIDEO_PAGE_SIZE);
+  document.getElementById('todayVideoList').innerHTML=batch.map(v=>{
+    const fav=isFav(v.bvid);
+    return `<div class="news-item" onclick="playVideo2('${v.bvid}','${v.title}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="tag tag-${tagClass}">${v.platform}</span>
+        <span style="cursor:pointer;font-size:18px;color:${fav?'var(--warn)':'var(--muted)'};flex-shrink:0" onclick="event.stopPropagation();toggleFav('${v.bvid}','${v.title.replace(/'/g,"\\'")}','${domain.key}','${domain.icon}','${domain.name}','${v.summary.replace(/'/g,"\\'")}','${v.platform}')">${fav?'⭐':'☆'}</span>
+      </div>
       <div class="title">${v.title}</div>
       <div class="summary">${v.summary}</div>
       <span class="video-btn" style="margin-top:6px">▶️ 观看视频</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+  // 分页按钮
+  const totalPages=Math.ceil(allVideos.length/VIDEO_PAGE_SIZE);
+  const pager=document.getElementById('videoPager');
+  if(totalPages<=1){pager.innerHTML='';pager.style.display='none';return}
+  pager.style.display='flex';
+  pager.innerHTML=`
+    <button class="btn ghost sm" ${videoPageIdx===0?'disabled style=\"opacity:.4\"':''} onclick="prevVideoPage()">◀️ 上一批</button>
+    <span class="small muted" style="display:flex;align-items:center;padding:0 8px">${videoPageIdx+1}/${totalPages}（共${allVideos.length}个）</span>
+    <button class="btn ghost sm" ${videoPageIdx>=totalPages-1?'disabled style=\"opacity:.4\"':''} onclick="nextVideoPage()">下一批 ▶️</button>
+  `;
+}
+function nextVideoPage(){
+  const domain=STUDY_DOMAINS[currentDomainIdx>=0?currentDomainIdx:getTodayDomainIndex()];
+  const totalPages=Math.ceil(domain.videos.length/VIDEO_PAGE_SIZE);
+  if(videoPageIdx<totalPages-1){videoPageIdx++;renderVideoList(domain)}
+}
+function prevVideoPage(){
+  const domain=STUDY_DOMAINS[currentDomainIdx>=0?currentDomainIdx:getTodayDomainIndex()];
+  if(videoPageIdx>0){videoPageIdx--;renderVideoList(domain)}
 }
 let currentDomainIdx=-1;
 function switchDomain(idx){
   const d=STUDY_DOMAINS[idx];
   currentDomainIdx=idx;
+  videoPageIdx=0;
   document.getElementById('todayDomain').textContent=d.icon+' '+d.name;
   renderDomainTabs(idx);
   renderVideoList(d);
