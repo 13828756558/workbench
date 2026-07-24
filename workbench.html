@@ -92,15 +92,25 @@
   .pri-低{background:#d1fae5;color:#059669}
   .todo-item .del{color:var(--muted);cursor:pointer;font-size:16px;padding:4px}
   .todo-item .del:hover{color:var(--danger)}
-  .reminder-item{background:linear-gradient(135deg,var(--panel2),#f5f0ff);padding:14px;border-radius:16px;margin-bottom:8px;border-left:4px solid var(--accent);border:1.5px solid var(--border)}
-  .reminder-item.urgent{border-left-color:var(--danger);background:linear-gradient(135deg,#fef2f7,#fce7f3)}
-  .reminder-item .when{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px}
-  .reminder-item .what{font-size:15px;font-weight:700;margin:4px 0;color:var(--text)}
-  .reminder-item .desc{font-size:12px;color:var(--muted)}
-  .reminder-item.urgent .what{color:#db2777}
-  .reminder-item .countdown{font-size:11px;padding:3px 8px;border-radius:8px;font-weight:700;margin-top:4px;display:inline-block}
-  .reminder-item.urgent .countdown{background:#fce7f3;color:#db2777}
-  .reminder-item:not(.urgent) .countdown{background:var(--accent3);color:var(--accent-deep)}
+  .memo-input-area{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+  .memo-input-area input,.memo-input-area select{background:var(--panel2);border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:12px;font-size:13px}
+  .memo-input-area input:focus{outline:none;border-color:var(--accent)}
+  .memo-input-area input#todoInput{flex:1;min-width:140px}
+  .memo-list{margin-top:10px;max-height:420px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .memo-item{display:flex;align-items:flex-start;gap:8px;padding:10px 12px;border-radius:12px;margin-bottom:5px;background:var(--panel2);border:1px solid var(--border);font-size:13px;transition:all .15s}
+  .memo-item:hover{border-color:var(--accent)}
+  .memo-item.done{opacity:.55}
+  .memo-item .check{font-size:20px;cursor:pointer;line-height:1;flex-shrink:0;margin-top:1px}
+  .memo-item .memo-body{flex:1;min-width:0}
+  .memo-item .memo-text{font-weight:600;line-height:1.4;word-break:break-word}
+  .memo-item.done .memo-text{text-decoration:line-through;color:var(--muted)}
+  .memo-item .memo-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:4px}
+  .memo-item .memo-tag{font-size:10px;padding:2px 7px;border-radius:6px;font-weight:600}
+  .memo-item .memo-date{font-size:11px;color:var(--muted)}
+  .memo-item .memo-date.overdue{color:var(--danger);font-weight:600}
+  .memo-item .del{color:var(--muted);cursor:pointer;font-size:15px;padding:2px;flex-shrink:0}
+  .memo-item .del:hover{color:var(--danger)}
+  .news-item .title{font-size:14px;font-weight:600;margin:4px 0}
   .sport-plan-item{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;margin-bottom:6px;background:var(--panel2);border:1px solid var(--border);transition:all .15s}
   .sport-plan-item.today-plan{border-color:var(--green-deep);background:linear-gradient(135deg,#ecfdf5,#f0fdf4)}
   .sport-plan-item .day-tag{font-size:11px;font-weight:700;padding:3px 10px;border-radius:8px;background:var(--accent3);color:var(--accent-deep);min-width:36px;text-align:center;flex-shrink:0}
@@ -201,27 +211,23 @@
   <div class="stat-grid" id="homeStats"></div>
   <div class="card"><div class="card-title">📋 今日任务清单 <span class="badge" id="todayTaskCount">0/0</span></div><div id="todayTasks"></div></div>
   <div class="card">
-    <div class="card-title">📝 日常待办 <span class="badge" id="todoBadge">0项</span></div>
-    <div class="form-row">
-      <input id="todoInput" type="text" placeholder="待办事项..." onkeypress="if(event.key==='Enter')addTodo()">
-      <select id="todoPri" style="max-width:80px"><option value="高">🔴 高</option><option value="中" selected>🟡 中</option><option value="低">🟢 低</option></select>
-    </div>
-    <div class="form-row">
-      <select id="todoDateType" style="max-width:90px" onchange="onTodoDateTypeChange()">
+    <div class="card-title">📔 备忘录 <span class="badge" id="todoBadge">0项</span></div>
+    <div class="memo-input-area">
+      <input id="todoInput" type="text" placeholder="记一笔..." onkeypress="if(event.key==='Enter')addTodo()">
+      <select id="todoPri" style="max-width:70px"><option value="高">🔴 高</option><option value="中" selected>🟡 中</option><option value="低">🟢 低</option></select>
+      <select id="todoDateType" style="max-width:80px" onchange="onTodoDateTypeChange()">
         <option value="once">📅 单次</option>
         <option value="daily">🔁 每日</option>
         <option value="weekly">📆 每周</option>
         <option value="monthly">🗓️ 每月</option>
       </select>
-      <span id="todoDateOnceWrap"><input id="todoDate" type="date" style="max-width:130px"></span>
-      <span id="todoWeekWrap" style="display:none"><select id="todoWeek" style="max-width:100px"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select></span>
-      <span id="todoMonthWrap" style="display:none"><select id="todoMonthDay" style="max-width:80px"></select><span class="small muted" style="margin-left:4px">号</span></span>
-      <input id="todoTime" type="time" style="max-width:90px">
+      <span id="todoDateOnceWrap"><input id="todoDate" type="date" style="max-width:120px"></span>
+      <span id="todoWeekWrap" style="display:none"><select id="todoWeek" style="max-width:90px"><option value="1">周一</option><option value="2">周二</option><option value="3">周三</option><option value="4">周四</option><option value="5">周五</option><option value="6">周六</option><option value="0">周日</option></select></span>
+      <span id="todoMonthWrap" style="display:none"><select id="todoMonthDay" style="max-width:70px"></select><span class="small muted" style="margin-left:2px">号</span></span>
+      <input id="todoTime" type="time" style="max-width:80px">
+      <button class="btn sm" onclick="addTodo()">添加</button>
     </div>
-    <div class="form-row">
-      <button class="btn sm" onclick="addTodo()">添加待办</button>
-    </div>
-    <div id="todoList" style="margin-top:12px;max-height:400px;overflow-y:auto"></div>
+    <div id="todoList" class="memo-list"></div>
   </div>
   <div class="card"><div class="card-title">🌷 每日寄语</div><div id="dailyQuote" style="font-size:14px;color:var(--text);padding:8px 0;text-align:center;font-weight:600"></div></div>
 </div>
@@ -310,15 +316,6 @@
 <div class="page" id="page-work">
   <div class="section-tip">💼 工作管理，井井有条</div>
   <div class="card">
-    <div class="card-title">⏰ 重要事项提醒 <span class="badge" id="reminderBadge">0项</span></div>
-    <div class="section-tip" style="margin-bottom:10px">📌 会议、周报、绩效等关键节点</div>
-    <div id="reminderList"></div>
-    <div class="form-row" style="margin-top:14px">
-      <select id="remType" style="max-width:100px"><option value="会议">📢 会议</option><option value="周报">📝 周报</option><option value="绩效">🎯 绩效</option><option value="截止">⏰ 截止日</option><option value="其他">📌 其他</option></select>
-      <input id="remDate" type="date" style="max-width:130px"><input id="remTitle" type="text" placeholder="事项标题"><button class="btn sm" onclick="addReminder()">添加</button>
-    </div>
-  </div>
-  <div class="card">
     <div class="card-title">📝 周五周报 <span class="badge" id="reportBadge">本周</span></div>
     <div class="tabs"><div class="tab active" data-tab="this" onclick="switchReport('this')">✏️ 本周周报</div><div class="tab" data-tab="history" onclick="switchReport('history')">📚 历史周报</div></div>
     <div id="reportThis">
@@ -384,7 +381,7 @@ function renderHeader(){
 
 // ===== 首页 =====
 function renderHome(){
-  const s=getSportData(),ai=getAIStudy(),sp=getSportPlan(),todos=getTodos(),reminders=getReminders(),w=getWeights();
+  const s=getSportData(),ai=getAIStudy(),sp=getSportPlan(),todos=getTodos(),w=getWeights();
   const now=new Date(),y=now.getFullYear(),m=now.getMonth();
   const daysInMonth=new Date(y,m+1,0).getDate();
   const sportMonth=Object.keys(s.dates).filter(d=>d.startsWith(`${y}-${String(m+1).padStart(2,'0')}`)).length;
@@ -395,7 +392,6 @@ function renderHome(){
   const spDone=spItems.filter(x=>x.done).length;
   let sportStreak=0,dt=new Date();
   while(s.dates[dt.toISOString().slice(0,10)]){sportStreak++;dt.setDate(dt.getDate()-1)}
-  const urgentReminders=reminders.filter(r=>!r.done&&daysBetween(today(),r.date)<=3&&daysBetween(today(),r.date)>=0).length;
   const goal=getWeightGoal();
   let goalProgress=0,goalText='未设置目标';
   if(goal.start&&goal.target&&w.length>0){
@@ -405,15 +401,16 @@ function renderHome(){
     goalProgress=Math.max(0,Math.min(100,Math.round(done/total*100)));
     goalText=`${goal.start}kg → ${goal.target}kg · 当前${cur}kg · 已完成${goalProgress}%`;
   }
+  const todoUndone=todos.filter(x=>!x.done);
+  const todoToday=todos.filter(x=>!x.done&&x.date<=today());
   document.getElementById('homeStats').innerHTML=`
     <div class="stat-card"><span class="emoji">🏃‍♀️</span><div class="num" style="color:var(--green-deep)">${sportRate}%</div><div class="label">运动打卡率</div><div class="sub">🔥 连续${sportStreak}天</div></div>
     <div class="stat-card"><span class="emoji">⚖️</span><div class="num" style="color:var(--warm)">${goalProgress}%</div><div class="label">减肥进度</div><div class="sub">${goalText}</div></div>
     <div class="stat-card"><span class="emoji">🤖</span><div class="num" style="color:var(--accent-deep)">${aiWeek.toFixed(1)}h</div><div class="label">本周学习</div><div class="sub">今日 ${ai.todayMin}/60min</div></div>
-    <div class="stat-card"><span class="emoji">⏰</span><div class="num" style="color:var(--danger)">${urgentReminders}</div><div class="label">近期待办提醒</div><div class="sub">${reminders.filter(r=>!r.done).length}项未完成</div></div>
+    <div class="stat-card"><span class="emoji">📋</span><div class="num" style="color:var(--pink)">${todoToday.length}</div><div class="label">今日备忘</div><div class="sub">${todoUndone.length}项待处理</div></div>
   `;
   const checkedSport=!!s.dates[today()];
   const aiDone=ai.todayMin>=60;
-  const todoUndone=todos.filter(x=>!x.done);
   const isFri=now.getDay()===5;
   const friReport=getReports()[curWeekKey()];
   const todayPlan=spItems.find(x=>x.day===getTodayDayName());
@@ -423,8 +420,7 @@ function renderHome(){
     {name:'⚖️ 记录今日体重',done:getWeights().some(x=>x.date===today())},
     {name:'🤖 学习60分钟',done:aiDone},
     ...(isFri?[{name:'📝 写周报',done:!!friReport}]:[]),
-    ...todoUndone.slice(0,3).map(x=>({name:'📋 '+x.text,done:false})),
-    ...reminders.filter(r=>!r.done&&daysBetween(today(),r.date)<=1&&daysBetween(today(),r.date)>=0).map(r=>({name:`⏰ ${r.title}`,done:false}))
+    ...todoToday.slice(0,4).map(x=>({name:'📋 '+x.text,done:false}))
   ];
   const doneCount=tasks.filter(x=>x.done).length;
   document.getElementById('todayTaskCount').textContent=`${doneCount}/${tasks.length}`;
@@ -726,24 +722,32 @@ function renderTodos(){
     return da.localeCompare(db);
   });
   const undone=data.filter(x=>!x.done).length;
-  document.getElementById('todoBadge').textContent=undone+'项待办';
+  document.getElementById('todoBadge').textContent=undone+'项';
   const list=document.getElementById('todoList');
-  if(data.length===0){list.innerHTML='<div class="empty"><span class="emoji">📋</span>暂无待办，添加一个吧</div>';return}
+  if(data.length===0){list.innerHTML='<div class="empty"><span class="emoji">📔</span>空空如也，记一笔吧</div>';return}
+  const priColors={'高':'#fce7f3;color:#db2777','中':'#fef3c7;color:#d97706','低':'#d1fae5;color:#059669'};
+  const priEmoji={'高':'🔴','中':'🟡','低':'🟢'};
   list.innerHTML=sorted.map(x=>{
     const isToday=x.date===todayStr;
     const isOverdue=!x.done&&x.date<todayStr;
     const dayLabel=isToday?'今天':x.date.slice(5);
-    const timeLabel=x.time?(' '+x.time):'';
+    const timeLabel=x.time?(' · '+x.time):'';
     // 重复类型标签
     let repeatLabel='';
-    if(x.dateType==='daily')repeatLabel='🔁 每日 · ';
-    else if(x.dateType==='weekly')repeatLabel='📆 '+WEEK_NAMES[x.weekday]+' · ';
-    else if(x.dateType==='monthly')repeatLabel='🗓️ 每月'+x.monthDay+'号 · ';
-    const nextLabel=x.done&&x.nextDate?' → '+x.nextDate.slice(5):'';
-    return `<div class="todo-item ${x.done?'done':''}" style="${isOverdue?'border-color:var(--danger);background:#fef2f7':''}">
+    if(x.dateType==='daily')repeatLabel='🔁每日';
+    else if(x.dateType==='weekly')repeatLabel='📆'+WEEK_NAMES[x.weekday];
+    else if(x.dateType==='monthly')repeatLabel='🗓️每月'+x.monthDay+'号';
+    const nextLabel=x.done&&x.nextDate?(' → '+x.nextDate.slice(5)):'';
+    return `<div class="memo-item ${x.done?'done':''}" style="${isOverdue?'border-color:var(--danger);background:#fef2f7':''}">
       <span class="check" onclick="toggleTodo(${x.id})">${x.done?'✅':'⬜'}</span>
-      <span class="text">${x.text}<div class="small muted">${isOverdue?'⚠️ 已过期 · ':''}📅 ${repeatLabel}${dayLabel}${timeLabel}${nextLabel}</div></span>
-      <span class="pri pri-${x.pri}">${x.pri}</span>
+      <div class="memo-body">
+        <div class="memo-text">${x.text}</div>
+        <div class="memo-meta">
+          <span class="memo-tag" style="background:${priColors[x.pri]}">${priEmoji[x.pri]} ${x.pri}</span>
+          ${repeatLabel?`<span class="memo-tag" style="background:var(--accent3);color:var(--accent-deep)">${repeatLabel}</span>`:''}
+          <span class="memo-date ${isOverdue?'overdue':''}">${isOverdue?'⚠️ 已过期 · ':''}📅 ${dayLabel}${timeLabel}${nextLabel}</span>
+        </div>
+      </div>
       <span class="del" onclick="delTodo(${x.id})">🗑️</span>
     </div>`;
   }).join('');
@@ -927,24 +931,6 @@ function closeVideo2(){document.getElementById('videoPlayer2').style.display='no
 
 function renderStudy(){renderAI();renderTodayVideos();}
 
-// ===== 工作提醒 =====
-function getReminders(){return DB.get('reminders',[])}
-function addReminder(){const type=document.getElementById('remType').value;const date=document.getElementById('remDate').value;const title=document.getElementById('remTitle').value.trim();if(!date||!title){toast('请填写日期和标题');return}const data=getReminders();data.unshift({type,date,title,done:false,id:Date.now()});DB.set('reminders',data);document.getElementById('remTitle').value='';renderReminders();toast('✅ 提醒已添加');}
-function toggleReminder(id){DB.set('reminders',getReminders().map(x=>x.id===id?{...x,done:!x.done}:x));renderReminders();}
-function delReminder(id){DB.set('reminders',getReminders().filter(x=>x.id!==id));renderReminders();}
-function renderReminders(){
-  const data=getReminders().filter(r=>!r.done).sort((a,b)=>a.date.localeCompare(b.date));
-  document.getElementById('reminderBadge').textContent=`${getReminders().filter(r=>!r.done).length}项`;
-  const typeEmoji={'会议':'📢','周报':'📝','绩效':'🎯','截止':'⏰','其他':'📌'};
-  const list=document.getElementById('reminderList');
-  if(data.length===0){list.innerHTML='<div class="empty"><span class="emoji">🎉</span>没有待办提醒</div>';return}
-  list.innerHTML=data.map(r=>{
-    const days=daysBetween(today(),r.date);const isUrgent=days<=3&&days>=0;const isOverdue=days<0;
-    let cdText='';if(isOverdue)cdText=`⚠️ 已逾期${Math.abs(days)}天`;else if(days===0)cdText='🔴 今天！';else if(days===1)cdText='🟠 明天';else cdText=`还有${days}天`;
-    return `<div class="reminder-item ${isUrgent||isOverdue?'urgent':''}"><div class="when">${typeEmoji[r.type]||'📌'} ${r.type} · ${r.date} <span style="float:right;cursor:pointer" onclick="delReminder(${r.id})">🗑️</span></div><div class="what">${r.title}</div><div class="desc">${isOverdue?'已过期，请尽快处理':'请在到期前完成'}</div><span class="countdown">${cdText}</span><span class="countdown" style="cursor:pointer;margin-left:6px" onclick="toggleReminder(${r.id})">✅ 完成</span></div>`;
-  }).join('');
-}
-
 // ===== 周报 =====
 function getReports(){return DB.get('reports',{})}
 function curWeekKey(){const d=new Date();return`${d.getFullYear()}-W${weekNum(d)}`}
@@ -953,7 +939,7 @@ function copyReport(){const text=`【本周完成】\n${document.getElementById(
 function switchReport(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));document.getElementById('reportThis').style.display=tab==='this'?'block':'none';document.getElementById('reportHistory').style.display=tab==='history'?'block':'none';if(tab==='history')renderReportHistory();}
 function renderReportHistory(){const reports=getReports();const keys=Object.keys(reports).sort().reverse();const list=document.getElementById('reportHistory');if(keys.length===0){list.innerHTML='<div class="empty"><span class="emoji">📚</span>还没有历史周报</div>';return}list.innerHTML=keys.map(k=>{const r=reports[k];return `<div class="report-card"><div class="wk">📅 ${k} · ${r.date}</div><div class="sec"><b>✅ 本周完成：</b>${(r.done||'无').replace(/\n/g,'；')}</div><div class="sec"><b>📅 下周计划：</b>${(r.plan||'无').replace(/\n/g,'；')}</div><div class="sec"><b>⚠️ 风险：</b>${r.risk||'无'}</div></div>`}).join('');}
 function loadCurReport(){const r=getReports()[curWeekKey()];if(r){document.getElementById('rpDone').value=r.done||'';document.getElementById('rpPlan').value=r.plan||'';document.getElementById('rpRisk').value=r.risk||'';document.getElementById('reportSaveInfo').textContent='✅ 上次保存：'+r.date;}}
-function renderWork(){renderReminders();loadCurReport();renderReportHistory();}
+function renderWork(){loadCurReport();renderReportHistory();}
 
 // ===== 统计 =====
 function renderStats(){
