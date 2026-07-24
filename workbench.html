@@ -177,17 +177,7 @@
   .domain-tab:active{transform:scale(.95)}
   .domain-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(167,139,250,.3)}
   .domain-tab .today-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green-deep);margin-left:5px;vertical-align:middle}
-  .report-block{margin-bottom:14px}
-  .report-block h4{font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600;display:flex;align-items:center;gap:4px}
-  .report-block textarea{width:100%;background:var(--panel2);border:1.5px solid var(--border);color:var(--text);padding:12px;border-radius:14px;font-size:14px;resize:vertical;min-height:70px;font-family:inherit}
-  .report-block textarea:focus{outline:none;border-color:var(--accent)}
-  .report-card{background:var(--panel2);padding:12px 14px;border-radius:14px;margin-bottom:8px;border:1px solid var(--border)}
-  .report-card .wk{font-size:11px;color:var(--muted);margin-bottom:6px;font-weight:600}
-  .report-card .sec{font-size:13px;margin:4px 0;line-height:1.5}
-  .report-card .sec b{color:var(--accent-deep);font-weight:600}
-  .tabs{display:flex;gap:4px;margin-bottom:14px;background:var(--panel2);padding:4px;border-radius:14px}
-  .tab{flex:1;padding:8px;font-size:13px;color:var(--muted);cursor:pointer;border-radius:10px;text-align:center;font-weight:600;transition:all .2s}
-  .tab.active{background:var(--panel);color:var(--accent-deep);box-shadow:var(--shadow)}
+
   .empty{text-align:center;padding:30px 20px;color:var(--muted);font-size:13px}
   .empty .emoji{font-size:40px;display:block;margin-bottom:8px;opacity:.6}
   .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;padding:12px 24px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;transition:all .3s;z-index:999;pointer-events:none;box-shadow:var(--shadow-lg)}
@@ -234,7 +224,7 @@
 
 <!-- ===== 生活 ===== -->
 <div class="page" id="page-life">
-  <div class="section-tip">🌿 运动健康，规律生活</div>
+  <div class="section-tip">🏃 运动健康，活力满满</div>
   <div class="card">
     <div class="card-title">🏃‍♀️ 运动健康打卡 <span class="badge">每日30min</span></div>
     <div class="ring-wrap">
@@ -312,20 +302,23 @@
   </div>
 </div>
 
-<!-- ===== 工作 ===== -->
-<div class="page" id="page-work">
-  <div class="section-tip">💼 工作管理，井井有条</div>
+<!-- ===== 娱乐 ===== -->
+<div class="page" id="page-fun">
+  <div class="section-tip">🎮 亲子时光，快乐陪伴</div>
   <div class="card">
-    <div class="card-title">📝 周五周报 <span class="badge" id="reportBadge">本周</span></div>
-    <div class="tabs"><div class="tab active" data-tab="this" onclick="switchReport('this')">✏️ 本周周报</div><div class="tab" data-tab="history" onclick="switchReport('history')">📚 历史周报</div></div>
-    <div id="reportThis">
-      <div class="report-block"><h4>✅ 本周完成</h4><textarea id="rpDone" placeholder="1. 完成XX模块开发&#10;2. 修复XX缺陷&#10;3. ..."></textarea></div>
-      <div class="report-block"><h4>📅 下周计划</h4><textarea id="rpPlan" placeholder="1. 推进XX需求&#10;2. ..."></textarea></div>
-      <div class="report-block"><h4>⚠️ 风险/需协调</h4><textarea id="rpRisk" placeholder="无 / 需XX支持..."></textarea></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="saveReport()">💾 保存周报</button><button class="btn ghost sm" onclick="copyReport()">📋 一键复制</button></div>
-      <span class="small muted" id="reportSaveInfo" style="display:block;margin-top:8px"></span>
+    <div class="card-title">👨‍👩‍👧 亲子活动推荐 <span class="badge" id="funTodayBadge">--</span></div>
+    <div class="section-tip" style="margin-bottom:10px">📅 每天推荐热门亲子活动视频，点击 ▶️ 观看</div>
+    <div id="funVideoPlayer" style="display:none;margin-bottom:14px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border)">
+      <div style="background:var(--panel2);padding:8px 14px;display:flex;justify-content:space-between;align-items:center"><span class="small" style="font-weight:600;color:var(--accent-deep)" id="funVideoTitle">▶️ 亲子视频</span><span style="cursor:pointer;font-size:18px;color:var(--muted)" onclick="closeFunVideo()">✕</span></div>
+      <div style="position:relative;padding-top:56.25%;background:#000"><iframe id="funVideoFrame" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" src="" allowfullscreen scrolling="no"></iframe></div>
     </div>
-    <div id="reportHistory" style="display:none;max-height:400px;overflow-y:auto"></div>
+    <div id="funCategoryTabs" class="domain-tabs"></div>
+    <div id="funVideoList"></div>
+    <div id="funPager" style="display:flex;gap:8px;justify-content:center;margin-top:10px"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">⭐ 收藏的亲子活动 <span class="badge" id="funFavBadge">0个</span></div>
+    <div id="funFavList"></div>
   </div>
 </div>
 
@@ -349,9 +342,9 @@
 
 <div class="nav">
   <div class="nav-item active" onclick="switchPage('home',this)"><div class="ico">🏠</div><div class="lbl">首页</div></div>
-  <div class="nav-item" onclick="switchPage('life',this)"><div class="ico">🌿</div><div class="lbl">生活</div></div>
+  <div class="nav-item" onclick="switchPage('life',this)"><div class="ico">🏃</div><div class="lbl">运动</div></div>
   <div class="nav-item" onclick="switchPage('study',this)"><div class="ico">📚</div><div class="lbl">学习</div></div>
-  <div class="nav-item" onclick="switchPage('work',this)"><div class="ico">💼</div><div class="lbl">工作</div></div>
+  <div class="nav-item" onclick="switchPage('fun',this)"><div class="ico">🎮</div><div class="lbl">娱乐</div></div>
   <div class="nav-item" onclick="switchPage('stats',this)"><div class="ico">📊</div><div class="lbl">统计</div></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -364,14 +357,14 @@ const weekNum=d=>{const onejan=new Date(d.getFullYear(),0,1);return Math.ceil(((
 const daysBetween=(d1,d2)=>Math.round((new Date(d2)-new Date(d1))/864e5);
 const quotes=['坚持是最温柔的力量 💪','每天进步一点点 🌱','代码改变世界 🌍','身体是革命的本钱 🏃‍♀️','学习是终身的事业 📚','今天也要元气满满 ✨','种树最好的时间是现在 🌳','慢慢来，比较快 🐢','不负时光不负己 🌈','做自己喜欢的事 🌸'];
 
-function switchPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');window.scrollTo(0,0);if(page==='home')renderHome();if(page==='study')renderStudy();if(page==='work')renderWork();if(page==='stats')renderStats();}
+function switchPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');window.scrollTo(0,0);if(page==='home')renderHome();if(page==='study')renderStudy();if(page==='fun')renderFun();if(page==='stats')renderStats();}
 
 function renderHeader(){
   const now=new Date();
   document.getElementById('dateChip').textContent='📅 '+fmtDate(now);
-  const isFriday=now.getDay()===5,isWeekend=now.getDay()===0||now.getDay()===6;
+  const isWeekend=now.getDay()===0||now.getDay()===6;
   let info=`第${weekNum(now)}周`;
-  if(isFriday)info+=' · ⚠️ 周五周报';else if(isWeekend)info+=' · 🎉 周末放松';
+  if(isWeekend)info+=' · 🎉 周末放松';
   document.getElementById('weekChip').textContent='📊 '+info;
   const h=now.getHours();
   const greet=h<6?'夜深了，早点休息':h<11?'早安，元气满满':h<14?'午安，记得休息':h<18?'下午好，继续加油':h<22?'晚上好，今天辛苦啦':'夜深了，早点休息';
@@ -411,15 +404,12 @@ function renderHome(){
   `;
   const checkedSport=!!s.dates[today()];
   const aiDone=ai.todayMin>=60;
-  const isFri=now.getDay()===5;
-  const friReport=getReports()[curWeekKey()];
   const todayPlan=spItems.find(x=>x.day===getTodayDayName());
   const tasks=[
     {name:'🏃‍♀️ 运动打卡30分钟',done:checkedSport},
     ...(todayPlan?[{name:`📋 今日运动：${todayPlan.name}`,done:todayPlan.done}]:[]),
     {name:'⚖️ 记录今日体重',done:getWeights().some(x=>x.date===today())},
     {name:'🤖 学习60分钟',done:aiDone},
-    ...(isFri?[{name:'📝 写周报',done:!!friReport}]:[]),
     ...todoToday.slice(0,4).map(x=>({name:'📋 '+x.text,done:false}))
   ];
   const doneCount=tasks.filter(x=>x.done).length;
@@ -931,15 +921,135 @@ function closeVideo2(){document.getElementById('videoPlayer2').style.display='no
 
 function renderStudy(){renderAI();renderTodayVideos();}
 
-// ===== 周报 =====
-function getReports(){return DB.get('reports',{})}
-function curWeekKey(){const d=new Date();return`${d.getFullYear()}-W${weekNum(d)}`}
-function saveReport(){const done=document.getElementById('rpDone').value.trim();const plan=document.getElementById('rpPlan').value.trim();const risk=document.getElementById('rpRisk').value.trim();if(!done&&!plan&&!risk){toast('周报内容为空');return}const reports=getReports();reports[curWeekKey()]={done,plan,risk,date:today()};DB.set('reports',reports);document.getElementById('reportSaveInfo').textContent='✅ 已保存于 '+new Date().toLocaleTimeString('zh-CN');toast('✅ 周报已保存');renderReportHistory();}
-function copyReport(){const text=`【本周完成】\n${document.getElementById('rpDone').value}\n\n【下周计划】\n${document.getElementById('rpPlan').value}\n\n【风险/需协调】\n${document.getElementById('rpRisk').value}`;navigator.clipboard.writeText(text).then(()=>toast('📋 已复制到剪贴板'));}
-function switchReport(tab){document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));document.getElementById('reportThis').style.display=tab==='this'?'block':'none';document.getElementById('reportHistory').style.display=tab==='history'?'block':'none';if(tab==='history')renderReportHistory();}
-function renderReportHistory(){const reports=getReports();const keys=Object.keys(reports).sort().reverse();const list=document.getElementById('reportHistory');if(keys.length===0){list.innerHTML='<div class="empty"><span class="emoji">📚</span>还没有历史周报</div>';return}list.innerHTML=keys.map(k=>{const r=reports[k];return `<div class="report-card"><div class="wk">📅 ${k} · ${r.date}</div><div class="sec"><b>✅ 本周完成：</b>${(r.done||'无').replace(/\n/g,'；')}</div><div class="sec"><b>📅 下周计划：</b>${(r.plan||'无').replace(/\n/g,'；')}</div><div class="sec"><b>⚠️ 风险：</b>${r.risk||'无'}</div></div>`}).join('');}
-function loadCurReport(){const r=getReports()[curWeekKey()];if(r){document.getElementById('rpDone').value=r.done||'';document.getElementById('rpPlan').value=r.plan||'';document.getElementById('rpRisk').value=r.risk||'';document.getElementById('reportSaveInfo').textContent='✅ 上次保存：'+r.date;}}
-function renderWork(){loadCurReport();renderReportHistory();}
+// ===== 娱乐：亲子活动视频推荐 =====
+const FUN_CATEGORIES=[
+  {
+    key:'game',name:'亲子游戏',icon:'🎯',color:'#7c3aed',
+    videos:[
+      {title:'30个暑假亲子感统游戏，一个月不重样',bvid:'BV1ra411o7Q2',summary:'宝宝超喜欢的感统游戏合集，天天不重样'},
+      {title:'睡前13个亲子游戏，消耗体力睡得更香',bvid:'BV1VQbYeEEz2',summary:'睡前在床上和孩子玩的亲子游戏'},
+      {title:'亲子操系列，亲子互动运动健康',bvid:'BV16J411v7LL',summary:'不能上学的日子，亲子操跳起来'},
+      {title:'笑喷饭的亲子游戏，你都玩过吗？',bvid:'BV1gjPaziEwa',summary:'超搞笑亲子游戏合集'},
+      {title:'简单愉快的归零游戏，增进亲子关系',bvid:'BV1LP4y1Q7Ny',summary:'归零游戏教程，大家快学起来'},
+      {title:'膝上童谣+彩虹弹力圈，音乐律动',bvid:'BV1SZKJ6dELy',summary:'带宝宝感受音乐律动的亲子游戏'},
+    ]
+  },
+  {
+    key:'craft',name:'亲子手工',icon:'✂️',color:'#059669',
+    videos:[
+      {title:'快递纸箱给孩子做20��玩具',bvid:'BV1RF41147hy',summary:'变废为宝，看完都惊呆了'},
+      {title:'自制投币保龄球玩具',bvid:'BV1Ha4y1w7YR',summary:'亲子手工制作投币保龄球'},
+      {title:'一张纸搞定4种课间小手工',bvid:'BV1Am411Z7vw',summary:'简单易学的纸艺手工教程'},
+      {title:'彩纸做迷你舞龙手工，简单又好玩',bvid:'BV1QF4m17739',summary:'教孩子用彩纸做舞龙'},
+      {title:'DIY马赛克杯垫/花瓶亲子手工',bvid:'BV1WY4y167mu',summary:'儿童礼物手工制作教程'},
+      {title:'自制四种好玩小手工',bvid:'BV1n13izmEYz',summary:'看看你做过哪一种'},
+    ]
+  },
+  {
+    key:'outdoor',name:'亲子户外',icon:'🏕️',color:'#d97706',
+    videos:[
+      {title:'10个户外游戏，增强体质预防近视',bvid:'BV14Q4y1r7p3',summary:'缓解压力促进亲子关系的户外游戏'},
+      {title:'10个户外活动合集，宝宝都爱',bvid:'BV1hc411E77c',summary:'带宝宝去玩的户外活动合集'},
+      {title:'2-5岁低成本户外遛娃，放电不费妈',bvid:'BV1oHLh6pENW',summary:'低成本低精力遛娃攻略'},
+      {title:'亲子露营，孩子会记一辈子的时光',bvid:'BV1Lv4y1L7Gb',summary:'温馨亲子露营体验分享'},
+      {title:'3年带娃露营100次经验分享',bvid:'BV1AvEFzNENt',summary:'2025继续带娃露营的思考'},
+      {title:'爸爸带4岁小朋友过夜露营',bvid:'BV1aG411v7nL',summary:'初冬营地撸猫亲子露营'},
+    ]
+  },
+  {
+    key:'book',name:'亲子绘本',icon:'📖',color:'#db2777',
+    videos:[
+      {title:'绘本阅读《大卫不可以》亲子互动',bvid:'BV1UE411j7Ew',summary:'经典绘本亲子阅读互动'},
+      {title:'《拼图王国》绘本精读',bvid:'BV18861YHERS',summary:'深见春夫绘本精读讲解'},
+      {title:'小泥鳅找食物·自然科普绘本',bvid:'BV1ZL411r7Uz',summary:'六六妈妈绘本阅读睡前故事'},
+      {title:'经典绘本《蹦》亲子共读',bvid:'BV1jT4y1K7g2',summary:'陪宝宝一起读绘本'},
+      {title:'《妈妈，买绿豆》婴幼儿绘本',bvid:'BV1vtfHYgEU7',summary:'适合1岁以上宝宝阅读的绘本'},
+      {title:'《爱看书的男孩》亲子阅读',bvid:'BV15f4y1o7MZ',summary:'亲子阅读绘本故事'},
+    ]
+  },
+];
+function getFunTodayIndex(){const day=Math.floor(Date.now()/86400000);return day%FUN_CATEGORIES.length}
+function getFunFavs(){return DB.get('funFavs',[])}
+function isFunFav(bvid){return getFunFavs().some(f=>f.bvid===bvid)}
+function toggleFunFav(bvid,title,catKey,catIcon,catName,summary){
+  const favs=getFunFavs();
+  if(favs.some(f=>f.bvid===bvid)){DB.set('funFavs',favs.filter(f=>f.bvid!==bvid));toast('💔 已取消收藏')}
+  else{favs.unshift({bvid,title,catKey,catIcon,catName,summary,id:Date.now()});DB.set('funFavs',favs);toast('⭐ 已收藏')}
+  renderFunVideoList(FUN_CATEGORIES[funCurrentIdx>=0?funCurrentIdx:getFunTodayIndex()]);
+  renderFunFavs();
+}
+function delFunFav(bvid){DB.set('funFavs',getFunFavs().filter(f=>f.bvid!==bvid));renderFunFavs();const cur=FUN_CATEGORIES[funCurrentIdx>=0?funCurrentIdx:getFunTodayIndex()];if(cur)renderFunVideoList(cur);}
+function renderFunFavs(){
+  const favs=getFunFavs();
+  document.getElementById('funFavBadge').textContent=favs.length+'个';
+  const list=document.getElementById('funFavList');
+  if(favs.length===0){list.innerHTML='<div class="empty"><span class="emoji">⭐</span>还没有收藏，点击视频卡片上的 ☆ 收藏</div>';return}
+  list.innerHTML=favs.map(f=>`
+    <div class="news-item" onclick="playFunVideo('${f.bvid}','${f.title.replace(/'/g,"\\'")}')">
+      <span class="tag" style="background:${FUN_CATEGORIES.find(c=>c.key===f.catKey)?.color||'#7c3aed'}20;color:${FUN_CATEGORIES.find(c=>c.key===f.catKey)?.color||'#7c3aed'}">${f.catIcon} ${f.catName}</span>
+      <div class="title">${f.title}</div>
+      <div class="summary">${f.summary}</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+        <span class="video-btn">▶️ 观看视频</span>
+        <span style="cursor:pointer;font-size:16px;color:var(--warn)" onclick="event.stopPropagation();delFunFav('${f.bvid}')">⭐</span>
+      </div>
+    </div>`).join('');
+}
+const FUN_PAGE_SIZE=3;
+let funPageIdx=0,funCurrentIdx=-1;
+function renderFun(){
+  const idx=getFunTodayIndex();
+  funCurrentIdx=idx;
+  funPageIdx=0;
+  const cat=FUN_CATEGORIES[idx];
+  document.getElementById('funTodayBadge').textContent=cat.icon+' '+cat.name;
+  renderFunTabs(idx);
+  renderFunVideoList(cat);
+  renderFunFavs();
+}
+function renderFunTabs(activeIdx){
+  const todayIdx=getFunTodayIndex();
+  document.getElementById('funCategoryTabs').innerHTML=FUN_CATEGORIES.map((c,i)=>{
+    return `<div class="domain-tab${i===activeIdx?' active':''}" onclick="switchFunCategory(${i})">${c.icon} ${c.name}${i===todayIdx?'<span class=\"today-dot\"></span>':''}</div>`;
+  }).join('');
+}
+function renderFunVideoList(cat){
+  const allVideos=cat.videos;
+  const start=funPageIdx*FUN_PAGE_SIZE;
+  const batch=allVideos.slice(start,start+FUN_PAGE_SIZE);
+  document.getElementById('funVideoList').innerHTML=batch.map(v=>{
+    const fav=isFunFav(v.bvid);
+    return `<div class="news-item" onclick="playFunVideo('${v.bvid}','${v.title.replace(/'/g,"\\'")}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <span class="tag" style="background:${cat.color}20;color:${cat.color}">${cat.icon} ${cat.name}</span>
+        <span style="cursor:pointer;font-size:18px;color:${fav?'var(--warn)':'var(--muted)'};flex-shrink:0" onclick="event.stopPropagation();toggleFunFav('${v.bvid}','${v.title.replace(/'/g,"\\'")}','${cat.key}','${cat.icon}','${cat.name}','${v.summary.replace(/'/g,"\\'")}')">${fav?'⭐':'☆'}</span>
+      </div>
+      <div class="title">${v.title}</div>
+      <div class="summary">${v.summary}</div>
+      <span class="video-btn" style="margin-top:6px">▶️ 观看视频</span>
+    </div>`;
+  }).join('');
+  const totalPages=Math.ceil(allVideos.length/FUN_PAGE_SIZE);
+  const pager=document.getElementById('funPager');
+  if(totalPages<=1){pager.innerHTML='';pager.style.display='none';return}
+  pager.style.display='flex';
+  pager.innerHTML=`
+    <button class="btn ghost sm" ${funPageIdx===0?'disabled style="opacity:.4"':''} onclick="prevFunPage()">◀️ 上一批</button>
+    <span class="small muted" style="display:flex;align-items:center;padding:0 8px">${funPageIdx+1}/${totalPages}（共${allVideos.length}个）</span>
+    <button class="btn ghost sm" ${funPageIdx>=totalPages-1?'disabled style="opacity:.4"':''} onclick="nextFunPage()">下一批 ▶️</button>
+  `;
+}
+function nextFunPage(){const cat=FUN_CATEGORIES[funCurrentIdx];const tp=Math.ceil(cat.videos.length/FUN_PAGE_SIZE);if(funPageIdx<tp-1){funPageIdx++;renderFunVideoList(cat)}}
+function prevFunPage(){const cat=FUN_CATEGORIES[funCurrentIdx];if(funPageIdx>0){funPageIdx--;renderFunVideoList(cat)}}
+function switchFunCategory(idx){
+  funCurrentIdx=idx;funPageIdx=0;
+  const c=FUN_CATEGORIES[idx];
+  document.getElementById('funTodayBadge').textContent=c.icon+' '+c.name;
+  renderFunTabs(idx);renderFunVideoList(c);closeFunVideo();
+  toast(`🎯 已切换到：${c.name}`);
+}
+function playFunVideo(bvid,title){document.getElementById('funVideoPlayer').style.display='block';document.getElementById('funVideoTitle').textContent='▶️ '+title;document.getElementById('funVideoFrame').src=`//player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&autoplay=1`;document.getElementById('funVideoPlayer').scrollIntoView({behavior:'smooth',block:'nearest'});}
+function closeFunVideo(){document.getElementById('funVideoPlayer').style.display='none';document.getElementById('funVideoFrame').src='';}
 
 // ===== 统计 =====
 function renderStats(){
@@ -961,8 +1071,8 @@ let toastTimer=null;function toast(msg){const el=document.getElementById('toast'
 // ===== 初始化 =====
 function init(){
   onTodoDateTypeChange();
-  renderHeader();renderHome();renderSport();renderSportPlan();renderWeights();renderTodos();renderStudy();renderWork();
-  if(new Date().getDay()===5)setTimeout(()=>toast('📌 今天周五，别忘了写周报！'),800);
+  renderHeader();renderHome();renderSport();renderSportPlan();renderWeights();renderTodos();renderStudy();renderFun();
+  if(new Date().getDay()===0||new Date().getDay()===6)setTimeout(()=>toast('🎉 周末啦，享受亲子时光！'),800);
 }
 init();
 </script>
