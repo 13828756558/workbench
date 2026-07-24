@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#c4b5fd">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="小老虎工作台">
+<meta name="apple-mobile-web-app-title" content="茜的个人空间">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
-<title>小老虎工作台</title>
+<title>茜的个人空间</title>
 <style>
   :root{
     --bg:#faf8ff; --panel:#ffffff; --panel2:#f8f5ff; --border:#ede9fe;
@@ -32,7 +32,7 @@
     background-attachment:fixed;
   }
   .header{background:linear-gradient(135deg,#c4b5fd,#ddd6fe);padding:20px 24px 18px;border-radius:0 0 28px 28px;margin-bottom:16px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
-  .header::before{content:'🐯';position:absolute;top:8px;right:20px;font-size:48px;opacity:.25}
+  .header::before{content:'💜';position:absolute;top:10px;right:22px;font-size:36px;opacity:.2}
   .header h1{color:#4c1d95;font-size:22px;font-weight:800}
   .header .greet{color:#6d28d9;font-size:13px;margin-top:4px;opacity:.8}
   .header .date-row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
@@ -156,6 +156,12 @@
   .tag-office{background:#d1fae5;color:#059669}
   .news-item .title{font-size:14px;font-weight:600;margin:4px 0}
   .news-item .summary{font-size:12px;color:var(--muted);line-height:1.5}
+  .domain-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;margin-bottom:10px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .domain-tabs::-webkit-scrollbar{display:none}
+  .domain-tab{flex-shrink:0;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap;border:1.5px solid var(--border);background:var(--panel);color:var(--muted);cursor:pointer;transition:all .2s}
+  .domain-tab:active{transform:scale(.95)}
+  .domain-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(167,139,250,.3)}
+  .domain-tab .today-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green-deep);margin-left:5px;vertical-align:middle}
   .report-block{margin-bottom:14px}
   .report-block h4{font-size:13px;color:var(--muted);margin-bottom:6px;font-weight:600;display:flex;align-items:center;gap:4px}
   .report-block textarea{width:100%;background:var(--panel2);border:1.5px solid var(--border);color:var(--text);padding:12px;border-radius:14px;font-size:14px;resize:vertical;min-height:70px;font-family:inherit}
@@ -179,7 +185,7 @@
 </head>
 <body>
 <div class="header">
-  <h1>🐯 小老虎工作台</h1>
+  <h1>🌸 茜的个人空间</h1>
   <div class="greet" id="greet">早安，开始今天的工作吧</div>
   <div class="date-row"><div class="date-chip" id="dateChip">📅</div><div class="date-chip" id="weekChip">📊</div></div>
 </div>
@@ -261,19 +267,14 @@
   </div>
 
   <div class="card">
-    <div class="card-title">🎯 今日学习推荐 <span class="badge" id="todayDomain">--</span></div>
-    <div class="section-tip" style="margin-bottom:10px">📅 每天按知识领域自动轮换，点击 ▶️ 观看视频</div>
+    <div class="card-title">🎯 学习推荐 <span class="badge" id="todayDomain">--</span></div>
+    <div class="section-tip" style="margin-bottom:10px">📅 每天按知识领域自动轮换，也可点击下方标签切换 · 点击 ▶️ 观看视频</div>
     <div id="videoPlayer2" style="display:none;margin-bottom:14px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border)">
       <div style="background:var(--panel2);padding:8px 14px;display:flex;justify-content:space-between;align-items:center"><span class="small" style="font-weight:600;color:var(--accent-deep)" id="videoTitle2">▶️ 学习视频</span><span style="cursor:pointer;font-size:18px;color:var(--muted)" onclick="closeVideo2()">✕</span></div>
       <div style="position:relative;padding-top:56.25%;background:#000"><iframe id="videoFrame2" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" src="" allowfullscreen scrolling="no"></iframe></div>
     </div>
+    <div id="domainTabs" class="domain-tabs"></div>
     <div id="todayVideoList"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">📚 全部学习领域 <span class="badge">5大领域</span></div>
-    <div class="section-tip" style="margin-bottom:10px">💡 点击任意领域查看该领域全部推荐视频</div>
-    <div id="domainList"></div>
   </div>
 </div>
 
@@ -336,7 +337,7 @@ const today=()=>new Date().toISOString().slice(0,10);
 const fmtDate=d=>`${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 ${'日一二三四五六'[d.getDay()]}`;
 const weekNum=d=>{const onejan=new Date(d.getFullYear(),0,1);return Math.ceil((((d-onejan)/864e5)+onejan.getDay()+1)/7)};
 const daysBetween=(d1,d2)=>Math.round((new Date(d2)-new Date(d1))/864e5);
-const quotes=['坚持是最温柔的力量 💪','每天进步一点点 🌱','代码改变世界 🌍','身体是革命的本钱 🏃‍♀️','学习是终身的事业 📚','今天也要元气满满 ✨','种树最好的时间是现在 🌳','慢慢来，比较快 🐢','不负时光不负己 🌈','小老虎加油！🐯'];
+const quotes=['坚持是最温柔的力量 💪','每天进步一点点 🌱','代码改变世界 🌍','身体是革命的本钱 🏃‍♀️','学习是终身的事业 📚','今天也要元气满满 ✨','种树最好的时间是现在 🌳','慢慢来，比较快 🐢','不负时光不负己 🌈','做自己喜欢的事 🌸'];
 
 function switchPage(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));el.classList.add('active');window.scrollTo(0,0);if(page==='home')renderHome();if(page==='study')renderStudy();if(page==='work')renderWork();if(page==='stats')renderStats();}
 
@@ -692,45 +693,41 @@ function renderTodayVideos(){
   const idx=getTodayDomainIndex();
   const domain=STUDY_DOMAINS[idx];
   document.getElementById('todayDomain').textContent=domain.icon+' '+domain.name;
-  const videos=domain.videos;
-  document.getElementById('todayVideoList').innerHTML=videos.map((v,i)=>`
+  renderDomainTabs(idx);
+  renderVideoList(domain);
+}
+function renderDomainTabs(activeIdx){
+  const todayIdx=getTodayDomainIndex();
+  document.getElementById('domainTabs').innerHTML=STUDY_DOMAINS.map((d,i)=>{
+    const isActive=i===activeIdx;
+    const isToday=i===todayIdx;
+    return `<div class="domain-tab${isActive?' active':''}" onclick="switchDomain(${i})">${d.icon} ${d.name}${isToday?'<span class=\"today-dot\"></span>':''}</div>`;
+  }).join('');
+}
+function renderVideoList(domain){
+  const tagClass=domain.key==='treasury'||domain.key==='java'?'biz':domain.key==='side'?'media':domain.key==='office'?'office':'ai';
+  document.getElementById('todayVideoList').innerHTML=domain.videos.map(v=>`
     <div class="news-item" onclick="playVideo2('${v.bvid}','${v.title}')">
-      <span class="tag tag-${domain.key==='treasury'||domain.key==='java'?'biz':domain.key==='side'?'media':domain.key==='office'?'office':'ai'}">${v.platform}</span>
+      <span class="tag tag-${tagClass}">${v.platform}</span>
       <div class="title">${v.title}</div>
       <div class="summary">${v.summary}</div>
       <span class="video-btn" style="margin-top:6px">▶️ 观看视频</span>
     </div>`).join('');
 }
-function renderDomainList(){
-  const todayIdx=getTodayDomainIndex();
-  document.getElementById('domainList').innerHTML=STUDY_DOMAINS.map((d,i)=>{
-    const isToday=i===todayIdx;
-    return `<div class="news-item" style="${isToday?'border-color:var(--accent);background:linear-gradient(135deg,var(--panel2),#f3e8ff)':''}" onclick="showDomainVideos(${i})">
-      <span class="tag" style="background:${d.color}20;color:${d.color}">${d.icon} ${d.name}</span>
-      <div class="title">${d.name} ${isToday?'<span class="small" style="color:var(--accent)">📌 今日推荐</span>':''}</div>
-      <div class="summary">${d.desc} · ${d.videos.length}个视频</div>
-    </div>`;
-  }).join('');
-}
 let currentDomainIdx=-1;
-function showDomainVideos(idx){
+function switchDomain(idx){
   const d=STUDY_DOMAINS[idx];
   currentDomainIdx=idx;
   document.getElementById('todayDomain').textContent=d.icon+' '+d.name;
-  document.getElementById('todayVideoList').innerHTML=d.videos.map((v,i)=>`
-    <div class="news-item" onclick="playVideo2('${v.bvid}','${v.title}')">
-      <span class="tag tag-${d.key==='treasury'||d.key==='java'?'biz':d.key==='side'?'media':d.key==='office'?'office':'ai'}">${v.platform}</span>
-      <div class="title">${v.title}</div>
-      <div class="summary">${v.summary}</div>
-      <span class="video-btn" style="margin-top:6px">▶️ 观看视频</span>
-    </div>`).join('');
-  document.getElementById('todayVideoList').scrollIntoView({behavior:'smooth',block:'nearest'});
+  renderDomainTabs(idx);
+  renderVideoList(d);
+  closeVideo2();
   toast(`📚 已切换到：${d.name}`);
 }
 function playVideo2(bvid,title){document.getElementById('videoPlayer2').style.display='block';document.getElementById('videoTitle2').textContent='▶️ '+title;document.getElementById('videoFrame2').src=`//player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&autoplay=1`;document.getElementById('videoPlayer2').scrollIntoView({behavior:'smooth',block:'nearest'});}
 function closeVideo2(){document.getElementById('videoPlayer2').style.display='none';document.getElementById('videoFrame2').src='';}
 
-function renderStudy(){renderAI();renderTodayVideos();renderDomainList();}
+function renderStudy(){renderAI();renderTodayVideos();}
 
 // ===== 工作提醒 =====
 function getReminders(){return DB.get('reminders',[])}
