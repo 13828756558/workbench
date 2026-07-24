@@ -189,6 +189,19 @@
   <div class="section-tip">✨ 今日总览，一目了然</div>
   <div class="stat-grid" id="homeStats"></div>
   <div class="card"><div class="card-title">📋 今日任务清单 <span class="badge" id="todayTaskCount">0/0</span></div><div id="todayTasks"></div></div>
+  <div class="card">
+    <div class="card-title">📝 日常待办 <span class="badge" id="todoBadge">0项</span></div>
+    <div class="form-row">
+      <input id="todoInput" type="text" placeholder="待办事项..." onkeypress="if(event.key==='Enter')addTodo()">
+      <input id="todoDate" type="date" style="max-width:130px">
+      <input id="todoTime" type="time" style="max-width:90px">
+    </div>
+    <div class="form-row">
+      <select id="todoPri" style="max-width:80px"><option value="高">🔴 高</option><option value="中" selected>🟡 中</option><option value="低">🟢 低</option></select>
+      <button class="btn sm" onclick="addTodo()">添加待办</button>
+    </div>
+    <div id="todoList" style="margin-top:12px;max-height:400px;overflow-y:auto"></div>
+  </div>
   <div class="card"><div class="card-title">🌷 每日寄语</div><div id="dailyQuote" style="font-size:14px;color:var(--text);padding:8px 0;text-align:center;font-weight:600"></div></div>
 </div>
 
@@ -232,17 +245,11 @@
     <div class="form-row"><input id="weightInput" type="number" step="0.1" placeholder="今日体重（kg）"><button class="btn green sm" onclick="addWeight()">记录体重</button></div>
     <div id="weightList" style="margin-top:12px;max-height:200px;overflow-y:auto"></div>
   </div>
-
-  <div class="card">
-    <div class="card-title">📝 日常提醒待办 <span class="badge" id="todoBadge">0项</span></div>
-    <div class="form-row"><input id="todoInput" type="text" placeholder="添加待办事项..." onkeypress="if(event.key==='Enter')addTodo()"><select id="todoPri" style="max-width:80px"><option value="高">高</option><option value="中" selected>中</option><option value="低">低</option></select><button class="btn sm" onclick="addTodo()">添加</button></div>
-    <div id="todoList" style="margin-top:12px;max-height:400px;overflow-y:auto"></div>
-  </div>
 </div>
 
 <!-- ===== 学习 ===== -->
 <div class="page" id="page-study">
-  <div class="section-tip">📚 持续学习，Java工程师进阶之路</div>
+  <div class="section-tip">📚 每日自动推荐，按知识领域轮换学习</div>
   <div class="card">
     <div class="card-title">⏱️ 每日学习计时 <span class="badge">每日60min</span></div>
     <div class="ai-timer-box">
@@ -254,23 +261,19 @@
   </div>
 
   <div class="card">
-    <div class="card-title">📅 每周学习计划 <span class="badge" id="planBadge">本周</span></div>
-    <div class="section-tip" style="margin-bottom:10px">🎯 AI编程提能 · 辅助办公提效 · 资金司库业务</div>
+    <div class="card-title">🎯 今日学习推荐 <span class="badge" id="todayDomain">--</span></div>
+    <div class="section-tip" style="margin-bottom:10px">📅 每天按知识领域自动轮换，点击 ▶️ 观看视频</div>
     <div id="videoPlayer2" style="display:none;margin-bottom:14px;border-radius:14px;overflow:hidden;border:1.5px solid var(--border)">
       <div style="background:var(--panel2);padding:8px 14px;display:flex;justify-content:space-between;align-items:center"><span class="small" style="font-weight:600;color:var(--accent-deep)" id="videoTitle2">▶️ 学习视频</span><span style="cursor:pointer;font-size:18px;color:var(--muted)" onclick="closeVideo2()">✕</span></div>
       <div style="position:relative;padding-top:56.25%;background:#000"><iframe id="videoFrame2" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" src="" allowfullscreen scrolling="no"></iframe></div>
     </div>
-    <div id="studyPlanList"></div>
+    <div id="todayVideoList"></div>
   </div>
 
   <div class="card">
-    <div class="card-title">🗞️ 资金管理 & 司库领域资讯 <span class="badge">行业动态</span></div>
-    <div id="bizNewsList"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">💡 AI编程 & 办公提效资讯 <span class="badge">前沿趋势</span></div>
-    <div id="aiNewsList"></div>
+    <div class="card-title">📚 全部学习领域 <span class="badge">5大领域</span></div>
+    <div class="section-tip" style="margin-bottom:10px">💡 点击任意领域查看该领域全部推荐视频</div>
+    <div id="domainList"></div>
   </div>
 </div>
 
@@ -572,16 +575,47 @@ function drawWeightChart(data){
   if(data.length>1){ctx.textAlign='right';ctx.fillText(data[data.length-1].date.slice(5),pad.l+cw,h-6)}
 }
 
-// ===== 待办 =====
+// ===== 待办（支持日期时间） =====
 function getTodos(){return DB.get('todos',[])}
-function addTodo(){const text=document.getElementById('todoInput').value.trim();const pri=document.getElementById('todoPri').value;if(!text)return;const data=getTodos();data.unshift({text,pri,done:false,id:Date.now()});DB.set('todos',data);document.getElementById('todoInput').value='';renderTodos();}
-function toggleTodo(id){DB.set('todos',getTodos().map(x=>x.id===id?{...x,done:!x.done}:x));renderTodos();}
-function delTodo(id){DB.set('todos',getTodos().filter(x=>x.id!==id));renderTodos();}
+function addTodo(){
+  const text=document.getElementById('todoInput').value.trim();
+  const pri=document.getElementById('todoPri').value;
+  const date=document.getElementById('todoDate').value||today();
+  const time=document.getElementById('todoTime').value||'';
+  if(!text)return;
+  const data=getTodos();
+  data.unshift({text,pri,date,time,done:false,id:Date.now()});
+  DB.set('todos',data);
+  document.getElementById('todoInput').value='';
+  document.getElementById('todoDate').value='';
+  document.getElementById('todoTime').value='';
+  renderTodos();renderHome();
+  toast('✅ 待办已添加');
+}
+function toggleTodo(id){DB.set('todos',getTodos().map(x=>x.id===id?{...x,done:!x.done}:x));renderTodos();renderHome();}
+function delTodo(id){DB.set('todos',getTodos().filter(x=>x.id!==id));renderTodos();renderHome();}
 function renderTodos(){
-  const data=getTodos();document.getElementById('todoBadge').textContent=data.length+'项';
+  const data=getTodos().sort((a,b)=>{
+    if(a.done!==b.done)return a.done?1:-1;
+    const da=a.date+a.time, db=b.date+b.time;
+    return da.localeCompare(db);
+  });
+  const undone=data.filter(x=>!x.done).length;
+  document.getElementById('todoBadge').textContent=undone+'项待办';
   const list=document.getElementById('todoList');
-  if(data.length===0){list.innerHTML='<div class="empty"><span class="emoji">📋</span>暂无待办</div>';return}
-  list.innerHTML=data.map(x=>`<div class="todo-item ${x.done?'done':''}"><span class="check" onclick="toggleTodo(${x.id})">${x.done?'✅':'⬜'}</span><span class="text">${x.text}</span><span class="pri pri-${x.pri}">${x.pri}</span><span class="del" onclick="delTodo(${x.id})">🗑️</span></div>`).join('');
+  if(data.length===0){list.innerHTML='<div class="empty"><span class="emoji">📋</span>暂无待办，添加一个吧</div>';return}
+  list.innerHTML=data.map(x=>{
+    const isToday=x.date===today();
+    const isOverdue=!x.done&&x.date<today();
+    const dayLabel=isToday?'今天':x.date.slice(5);
+    const timeLabel=x.time?(' '+x.time):'';
+    return `<div class="todo-item ${x.done?'done':''}" style="${isOverdue?'border-color:var(--danger);background:#fef2f7':''}">
+      <span class="check" onclick="toggleTodo(${x.id})">${x.done?'✅':'⬜'}</span>
+      <span class="text">${x.text}<div class="small muted">${isOverdue?'⚠️ 已过期 · ':''}📅 ${dayLabel}${timeLabel}</div></span>
+      <span class="pri pri-${x.pri}">${x.pri}</span>
+      <span class="del" onclick="delTodo(${x.id})">🗑️</span>
+    </div>`;
+  }).join('');
 }
 
 // ===== 学习计时器（60分钟） =====
@@ -599,65 +633,104 @@ function resetAITimer(){clearInterval(aiTimer);aiRunning=false;aiSecs=60*60;docu
 function updateAIDisplay(){const m=Math.floor(aiSecs/60),s=aiSecs%60;document.getElementById('aiTimer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;const st=getAIStudy();if(!aiRunning)document.getElementById('aiStatus').textContent=`今日 ${st.todayMin}/60 min`;}
 function renderAI(){const s=getAIStudy();if(s.date!==today()){s.date=today();s.todayMin=0;DB.set('aiStudy',s)}document.getElementById('aiProgress').style.width=Math.min(s.todayMin/60*100,100)+'%';document.getElementById('aiStatus').textContent=`今日 ${s.todayMin}/60 min`;updateAIDisplay();}
 
-// ===== 学习计划（含B站视频） =====
-const STUDY_PLAN=[
-  {day:'周一',topic:'AI编程提能：Cursor实战',detail:'Cursor AI编辑器从安装到实战，提升Java编码效率',bvid:'BV1E6CFBMEnk',status:'todo'},
-  {day:'周二',topic:'AI编程提能：Claude Code',detail:'Claude Code CLI使用，项目级代码生成与修改',bvid:'BV1BFgY6mEPw',status:'todo'},
-  {day:'周三',topic:'辅助办公提效：ChatGPT',detail:'ChatGPT在办公中的应用，文档/表格/PPT提效',bvid:'BV1jzgh6VEG8',status:'todo'},
-  {day:'周四',topic:'资金管理业务：司库体系',detail:'企业司库管理业务知识，资金集中管理',bvid:'BV1Wj411X7ui',status:'todo'},
-  {day:'周五',topic:'AI编程提能：Copilot',detail:'GitHub Copilot进阶使用，智能代码补全',bvid:'BV15BSYBgEnx',status:'todo'},
-  {day:'周六',topic:'Prompt工程',detail:'提示词工程实战，编写高效Prompt',bvid:'BV1fhVm6eE1i',status:'todo'},
-  {day:'周日',topic:'资金管理业务：理财系统',detail:'Java资金管理系统实战，理财+借贷+银行',bvid:'BV12Z2DBBET7',status:'todo'},
+// ===== 学习板块：按知识领域自动推荐 =====
+const STUDY_DOMAINS=[
+  {
+    key:'ai',name:'AI编程提能',icon:'🤖',color:'#7c3aed',
+    desc:'Cursor、Claude Code、Copilot等AI编程工具实战',
+    videos:[
+      {title:'Cursor AI编程零基础全套教程',bvid:'BV1E6CFBMEnk',platform:'B站',summary:'2025最新版Cursor从安装到实战，22节完整教程'},
+      {title:'Claude Code从入门到精通',bvid:'BV1BFgY6mEPw',platform:'B站',summary:'B站讲得最好的Claude Code实战教程'},
+      {title:'VSCode GitHub Copilot完整教程',bvid:'BV15BSYBgEnx',platform:'B站',summary:'Copilot基础到进阶，智能代码补全'},
+      {title:'Vibe Coding新编程范式',bvid:'BV1fhVm6eE1i',platform:'B站',summary:'自然语言生成代码，AI编程新趋势'},
+    ]
+  },
+  {
+    key:'office',name:'辅助办公提效',icon:'💼',color:'#059669',
+    desc:'ChatGPT、WPS AI等工具提升日常办公效率',
+    videos:[
+      {title:'ChatGPT官方中文版使用教程',bvid:'BV1jzgh6VEG8',platform:'B站',summary:'最新最全ChatGPT使用教程，办公提效'},
+      {title:'ChatGPT文档/表格/幻灯片应用',bvid:'BV1Ghge6jERt',platform:'B站',summary:'用ChatGPT处理文档、表格和PPT'},
+      {title:'Prompt工程系统化教程',bvid:'BV1fhVm6eE1i',platform:'B站',summary:'提示词工程彻底讲透，提升AI输出质量'},
+    ]
+  },
+  {
+    key:'treasury',name:'资金司库业务',icon:'🏦',color:'#d97706',
+    desc:'司库管理、资金集中管理、央企司库体系建设',
+    videos:[
+      {title:'司库资金管理软件有什么用',bvid:'BV1Wj411X7ui',platform:'B站',summary:'邑泊咨询讲解司库资金管理软件价值'},
+      {title:'Java资金管理系统实战',bvid:'BV12Z2DBBET7',platform:'B站',summary:'理财+借贷+银行推荐+权限控制全栈项目'},
+      {title:'银行柜员业务绩效考核系统',bvid:'BV1jG411e7KB',platform:'B站',summary:'Java实战毕设项目，绩效考核系统设计'},
+    ]
+  },
+  {
+    key:'java',name:'Java技术进阶',icon:'☕',color:'#dc2626',
+    desc:'SpringBoot、Java后端技术栈提升',
+    videos:[
+      {title:'B站最全Java从入门到精通',bvid:'BV1xYK26ZEWV',platform:'B站',summary:'2026暑假版，全程干货零基础全套教程'},
+      {title:'SpringBoot快速上手+实战',bvid:'BV1tBgC6aEu7',platform:'B站',summary:'B站讲得最好的SpringBoot教程'},
+    ]
+  },
+  {
+    key:'side',name:'副业自媒体',icon:'📱',color:'#db2777',
+    desc:'程序员副业、小红书运营、短视频变现',
+    videos:[
+      {title:'程序员超赚钱自媒体账号教程',bvid:'BV1FfKWeVEaQ',platform:'B站',summary:'黑马程序员20条自媒体赛道变现指南'},
+      {title:'程序员最好的副业方向',bvid:'BV12ri1YuERk',platform:'B站',summary:'每个程序员都该做的副业'},
+      {title:'程序员转行UP主收入大公开',bvid:'BV1S59uBGEVo',platform:'B站',summary:'程序员做全职UP主经历分享'},
+      {title:'小红书运营全教程',bvid:'BV1dDgx68ELy',platform:'B站',summary:'2025最新小红书运营，从起号到变现'},
+    ]
+  },
 ];
+function getTodayDomainIndex(){
+  // 每天轮换一个领域，5天一轮
+  const day=Math.floor(Date.now()/86400000);
+  return day%STUDY_DOMAINS.length;
+}
 function getStudyPlan(){return DB.get('studyPlan',{items:[],weekKey:''})}
-function renderStudyPlan(){
-  let p=getStudyPlan();
-  if(p.weekKey!==getCurWeekKey()){p.items=[];p.weekKey=getCurWeekKey();DB.set('studyPlan',p)}
-  const items=p.items.length?p.items:JSON.parse(JSON.stringify(STUDY_PLAN));
-  const doneCount=items.filter(x=>x.status==='done').length;
-  document.getElementById('planBadge').textContent=`${doneCount}/${items.length}天`;
-  document.getElementById('studyPlanList').innerHTML=items.map((x,i)=>`
-    <div class="plan-item" onclick="toggleStudyPlan(${i})">
-      <span class="day">${x.day}</span>
-      <div class="topic">${x.status==='done'?'✅':''} ${x.topic}</div>
-      <div class="detail">${x.detail}</div>
-      <span class="status ${x.status}">${x.status==='done'?'已完成':'待学习'}</span>
-      ${x.bvid?`<span class="video-btn" onclick="event.stopPropagation();playVideo2('${x.bvid}','${x.topic}')">▶️ 观看视频</span>`:''}
+function renderTodayVideos(){
+  const idx=getTodayDomainIndex();
+  const domain=STUDY_DOMAINS[idx];
+  document.getElementById('todayDomain').textContent=domain.icon+' '+domain.name;
+  const videos=domain.videos;
+  document.getElementById('todayVideoList').innerHTML=videos.map((v,i)=>`
+    <div class="news-item" onclick="playVideo2('${v.bvid}','${v.title}')">
+      <span class="tag tag-${domain.key==='treasury'||domain.key==='java'?'biz':domain.key==='side'?'media':domain.key==='office'?'office':'ai'}">${v.platform}</span>
+      <div class="title">${v.title}</div>
+      <div class="summary">${v.summary}</div>
+      <span class="video-btn" style="margin-top:6px">▶️ 观看视频</span>
     </div>`).join('');
 }
-function toggleStudyPlan(i){let p=getStudyPlan();const items=p.items.length?p.items:JSON.parse(JSON.stringify(STUDY_PLAN));items[i].status=items[i].status==='done'?'todo':'done';p.items=items;DB.set('studyPlan',p);renderStudyPlan();toast('✅ 学习计划已更新');}
+function renderDomainList(){
+  const todayIdx=getTodayDomainIndex();
+  document.getElementById('domainList').innerHTML=STUDY_DOMAINS.map((d,i)=>{
+    const isToday=i===todayIdx;
+    return `<div class="news-item" style="${isToday?'border-color:var(--accent);background:linear-gradient(135deg,var(--panel2),#f3e8ff)':''}" onclick="showDomainVideos(${i})">
+      <span class="tag" style="background:${d.color}20;color:${d.color}">${d.icon} ${d.name}</span>
+      <div class="title">${d.name} ${isToday?'<span class="small" style="color:var(--accent)">📌 今日推荐</span>':''}</div>
+      <div class="summary">${d.desc} · ${d.videos.length}个视频</div>
+    </div>`;
+  }).join('');
+}
+let currentDomainIdx=-1;
+function showDomainVideos(idx){
+  const d=STUDY_DOMAINS[idx];
+  currentDomainIdx=idx;
+  document.getElementById('todayDomain').textContent=d.icon+' '+d.name;
+  document.getElementById('todayVideoList').innerHTML=d.videos.map((v,i)=>`
+    <div class="news-item" onclick="playVideo2('${v.bvid}','${v.title}')">
+      <span class="tag tag-${d.key==='treasury'||d.key==='java'?'biz':d.key==='side'?'media':d.key==='office'?'office':'ai'}">${v.platform}</span>
+      <div class="title">${v.title}</div>
+      <div class="summary">${v.summary}</div>
+      <span class="video-btn" style="margin-top:6px">▶️ 观看视频</span>
+    </div>`).join('');
+  document.getElementById('todayVideoList').scrollIntoView({behavior:'smooth',block:'nearest'});
+  toast(`📚 已切换到：${d.name}`);
+}
 function playVideo2(bvid,title){document.getElementById('videoPlayer2').style.display='block';document.getElementById('videoTitle2').textContent='▶️ '+title;document.getElementById('videoFrame2').src=`//player.bilibili.com/player.html?bvid=${bvid}&page=1&high_quality=1&autoplay=1`;document.getElementById('videoPlayer2').scrollIntoView({behavior:'smooth',block:'nearest'});}
 function closeVideo2(){document.getElementById('videoPlayer2').style.display='none';document.getElementById('videoFrame2').src='';}
 
-// ===== 资讯 =====
-const AI_NEWS=[
-  {tag:'AI编程',tagClass:'tag-ai',title:'Cursor Composer Agent 模式发布',summary:'新一代AI代码编辑器Cursor支持全项目自动开发，可自主修改多个文件，Java项目也能用'},
-  {tag:'AI编程',tagClass:'tag-ai',title:'Claude Code CLI 开源',summary:'终端内AI编程助手，支持项目级代码理解和修改，适合Java后端项目'},
-  {tag:'办公提效',tagClass:'tag-office',title:'ChatGPT 支持文档/表格/PPT',summary:'ChatGPT可直接处理文档、工作表和幻灯片，办公效率翻倍'},
-  {tag:'AI编程',tagClass:'tag-ai',title:'GitHub Copilot Workspace 发布',summary:'从代码补全升级到任务级开发，描述需求即可生成完整实现'},
-  {tag:'Prompt',tagClass:'tag-code',title:'Prompt工程系统化教程',summary:'B站最全提示词工程教程，学会编写高效Prompt提升AI输出质量'},
-  {tag:'AI编程',tagClass:'tag-ai',title:'Vibe Coding 概念流行',summary:'用自然语言描述需求，AI全流程生成代码的新编程范式'},
-];
-const BIZ_NEWS=[
-  {tag:'司库',tagClass:'tag-biz',title:'国资委推进央企司库体系建设',summary:'央企司库管理向数字化、智能化转型，资金集中管理成趋势，Java工程师需关注'},
-  {tag:'资金管理',tagClass:'tag-biz',title:'企业司库资金管理软件发展',summary:'司库系统覆盖资金运作、风险管理、融资决策，技术需求旺盛'},
-  {tag:'资金管理',tagClass:'tag-biz',title:'Java资金管理系统实战',summary:'理财+借贷+银行推荐+权限控制，Java全栈资金管理系统项目实战'},
-  {tag:'司库',tagClass:'tag-biz',title:'司库"看管攒赚"四步法',summary:'企业司库通过看（监控）、管（管控）、攒（归集）、赚（增值）赋能资金管理'},
-  {tag:'资金管理',tagClass:'tag-biz',title:'银行柜员业务绩效考核系统',summary:'Java实战项目，银行柜员业务绩效考核系统设计与实现'},
-  {tag:'资金管理',tagClass:'tag-biz',title:'数字人民币与资金管理',summary:'数字人民币推广对资金管理系统的影响，Java支付清结算系统新需求'},
-];
-// ===== 自媒体副业资讯+视频 =====
-const SIDE_HUSTLE_NEWS=[
-  {tag:'副业',tagClass:'tag-media',title:'程序员超赚钱自媒体账号教程',summary:'黑马程序员20条自媒体赛道，从起号到变现，程序员副业必备',bvid:'BV1FfKWeVEaQ'},
-  {tag:'副业',tagClass:'tag-media',title:'程序员最好的副业方向',summary:'每个程序员都应该做的副业，超级个体之路',bvid:'BV12ri1YuERk'},
-  {tag:'副业',tagClass:'tag-media',title:'程序员转行UP主收入大公开',summary:'程序员转行做全职B站UP主经历分享，收入到底怎么样',bvid:'BV1S59uBGEVo'},
-  {tag:'自媒体',tagClass:'tag-media',title:'新媒体运营300集系统课',summary:'小红书运营/抖音短视频/电商直播带货，零基础系统学习',bvid:'BV13hga6BEzS'},
-];
-function renderNews(){
-  document.getElementById('aiNewsList').innerHTML=AI_NEWS.map(n=>`<div class="news-item"><span class="tag ${n.tagClass}">${n.tag}</span><div class="title">${n.title}</div><div class="summary">${n.summary}</div></div>`).join('');
-  document.getElementById('bizNewsList').innerHTML=BIZ_NEWS.map(n=>`<div class="news-item"><span class="tag ${n.tagClass}">${n.tag}</span><div class="title">${n.title}</div><div class="summary">${n.summary}</div></div>`).join('');
-}
-function renderStudy(){renderAI();renderStudyPlan();renderNews();}
+function renderStudy(){renderAI();renderTodayVideos();renderDomainList();}
 
 // ===== 工作提醒 =====
 function getReminders(){return DB.get('reminders',[])}
