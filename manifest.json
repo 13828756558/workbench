@@ -1,0 +1,24 @@
+{
+  "name": "茜的工作台",
+  "short_name": "茜·工作台",
+  "description": "茜的个人工作台 - 生活习惯、AI学习、工作管理",
+  "start_url": "workbench.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#faf8ff",
+  "theme_color": "#c4b5fd",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
